@@ -1,0 +1,119 @@
+import { Router, Request, Response } from 'express';
+import { z } from 'zod';
+import { randomUUID } from 'crypto';
+import pool from '../db';
+import { authMiddleware, requireAdmin } from '../middleware/auth';
+import { PointsService } from '../services/points';
+
+const router = Router();
+
+const DelegateSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().min(1),
+  assigned_to: z.string().uuid(),
+  deadline: z.string().min(1),
+  admin_remark: z.string().optional().nullable(),
+});
+
+const RemarkSchema = z.object({
+  admin_remark: z.string().min(1),
+});
+
+// GET /delegated — All delegated tasks (visible to everyone)
+router.get('/', authMiddleware, async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await pool.query(
+      `SELECT d.id, d.title, d.description, d.status, d.deadline, d.created_at, d.completed_at, d.admin_remark,
+              d.assigned_to, au.name AS assigned_to_name,
+              d.created_by, cu.name AS created_by_name
+       FROM delegated_tasks d
+       LEFT JOIN users au ON au.id = d.assigned_to
+       LEFT JOIN users cu ON cu.id = d.created_by
+       ORDER BY d.created_at DESC`,
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Get delegated tasks error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /delegated — Admin creates and delegates a task
+router.post('/', authMiddleware, requireAdmin, async (req: Request, res: Response): Promise<void> => {
+  const parsed = DelegateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() });
+    return;
+  }
+  const { title, description, assigned_to, deadline, admin_remark } = parsed.data;
+  const createdBy = req.user!.sub;
+  const id = randomUUID();
+  try {
+    const result = await pool.query(
+      `INSERT INTO delegated_tasks (id, title, description, assigned_to, created_by, deadline, admin_remark)
+       VALUES ($1,$2,$3,$4,$5,$6,$7)
+       RETURNING *`,
+      [id, title, description, assigned_to, createdBy, deadline, admin_remark ?? null],
+    );
+    // Notify the assignee
+    await pool.query(
+      `INSERT INTO notifications (id, user_id, message) VALUES ($1,$2,$3)`,
+      [randomUUID(), assigned_to, `🎯 New task delegated to you: "${title}"`],
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Delegate task error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// PATCH /delegated/:id/complete — Member marks delegated task complete
+router.patch('/:id/complete', authMiddleware, async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const userId = req.user!.sub;
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const r = await client.query('SELECT * FROM delegated_tasks WHERE id=$1 FOR UPDATE', [id]);
+    if (r.rows.length === 0) { await client.query('ROLLBACK'); res.status(404).json({ error: 'Not found' }); return; }
+    const task = r.rows[0];
+    if (task.assigned_to !== userId) { await client.query('ROLLBACK'); res.status(403).json({ error: 'Not assigned to you' }); return; }
+    if (task.status === 'completed') { await client.query('ROLLBACK'); res.status(409).json({ error: 'Already completed' }); return; }
+    const completedAt = new Date();
+    const updated = await client.query(
+      `UPDATE delegated_tasks SET status='completed', completed_at=$1 WHERE id=$2 RETURNING *`,
+      [completedAt, id],
+    );
+    if (task.deadline && completedAt < new Date(task.deadline)) {
+      await PointsService.award(userId, id, client);
+    }
+    await client.query('COMMIT');
+    res.json(updated.rows[0]);
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Complete delegated task error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    client.release();
+  }
+});
+
+// PATCH /delegated/:id/remark — Admin adds/updates remark
+router.patch('/:id/remark', authMiddleware, requireAdmin, async (req: Request, res: Response): Promise<void> => {
+  const parsed = RemarkSchema.safeParse(req.body);
+  if (!parsed.success) { res.status(400).json({ error: 'Remark is required' }); return; }
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      `UPDATE delegated_tasks SET admin_remark=$1 WHERE id=$2 RETURNING *`,
+      [parsed.data.admin_remark, id],
+    );
+    if (result.rows.length === 0) { res.status(404).json({ error: 'Not found' }); return; }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Remark error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+export default router;

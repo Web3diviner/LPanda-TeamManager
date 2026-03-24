@@ -1,0 +1,37 @@
+import express from 'express';
+import cookieParser from 'cookie-parser';
+import authRouter from './routes/auth';
+import tasksRouter from './routes/tasks';
+import pointsRouter from './routes/points';
+import recapRouter from './routes/recap';
+import announcementsRouter from './routes/announcements';
+import delegatedRouter from './routes/delegated';
+import notificationsRouter from './routes/notifications';
+import feedbackRouter from './routes/feedback';
+import timersRouter from './routes/timers';
+import { startScheduler } from './scheduler';
+
+const app = express();
+
+app.use(express.json({ limit: '10mb' })); // allow base64 screenshots
+app.use(cookieParser());
+
+app.use('/auth', authRouter);
+app.use('/tasks', tasksRouter);
+app.use('/points', pointsRouter);
+app.use('/recap', recapRouter);
+app.use('/announcements', announcementsRouter);
+app.use('/delegated', delegatedRouter);
+app.use('/notifications', notificationsRouter);
+app.use('/feedback', feedbackRouter);
+app.use('/timers', timersRouter);
+
+app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+
+export default app;
+
+if (require.main === module) {
+  const PORT = Number(process.env.PORT ?? 3000);
+  startScheduler();
+  app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+}
