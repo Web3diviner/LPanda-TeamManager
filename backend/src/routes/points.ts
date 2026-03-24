@@ -28,6 +28,7 @@ router.get('/me', authMiddleware, async (req: Request, res: Response): Promise<v
     );
 
     res.json({
+      balance: userResult.rows[0].points,
       points: userResult.rows[0].points,
       transactions: transactionsResult.rows,
     });

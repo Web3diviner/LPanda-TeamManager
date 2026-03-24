@@ -13,7 +13,9 @@ export default function ProfilePage() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    api.get('/points/me').then(res => setData(res.data)).catch(() => setError('Failed to load profile data.'))
+    api.get('/points/me')
+      .then(res => setData({ balance: res.data.points, transactions: res.data.transactions }))
+      .catch(() => setError('Failed to load profile data.'))
     api.get('/notifications').then(res => setNotifications(res.data)).catch(() => {})
   }, [])
 

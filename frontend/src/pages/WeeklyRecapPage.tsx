@@ -2,17 +2,16 @@ import { useEffect, useState } from 'react'
 import api from '../api'
 
 interface MemberRecap {
-  id: string
+  userId: string
   name: string
-  net_change: number
-  completed: number
+  netChange: number
 }
 
 interface RecapData {
-  total_completed: number
-  total_awarded: number
-  total_deducted: number
-  members: MemberRecap[]
+  totalCompleted: number
+  totalAwarded: number
+  totalDeducted: number
+  perMember: MemberRecap[]
 }
 
 export default function WeeklyRecapPage() {
@@ -33,14 +32,14 @@ export default function WeeklyRecapPage() {
       <h2>📊 Weekly Recap</h2>
 
       <div style={statsGrid}>
-        <StatCard icon="✅" label="Tasks Completed" value={data.total_completed} color="#059669" bg="#d1fae5" border="#6ee7b7" />
-        <StatCard icon="⭐" label="Points Awarded" value={`+${Number(data.total_awarded).toFixed(1)}`} color="#7c3aed" bg="#ede9fe" border="#c4b5fd" />
-        <StatCard icon="📉" label="Points Deducted" value={`-${Number(data.total_deducted).toFixed(1)}`} color="#dc2626" bg="#fee2e2" border="#fca5a5" />
-        <StatCard icon="📈" label="Net Change" value={(Number(data.total_awarded) - Number(data.total_deducted)).toFixed(1)} color="#0284c7" bg="#e0f2fe" border="#7dd3fc" />
+        <StatCard icon="✅" label="Tasks Completed" value={data.totalCompleted} color="#059669" bg="#d1fae5" border="#6ee7b7" />
+        <StatCard icon="⭐" label="Points Awarded" value={`+${Number(data.totalAwarded).toFixed(1)}`} color="#7c3aed" bg="#ede9fe" border="#c4b5fd" />
+        <StatCard icon="📉" label="Points Deducted" value={`-${Number(data.totalDeducted).toFixed(1)}`} color="#dc2626" bg="#fee2e2" border="#fca5a5" />
+        <StatCard icon="📈" label="Net Change" value={(Number(data.totalAwarded) - Number(data.totalDeducted)).toFixed(1)} color="#0284c7" bg="#e0f2fe" border="#7dd3fc" />
       </div>
 
       <h3 style={{ marginTop: '2rem' }}>Per-Member Breakdown</h3>
-      {data.members.length === 0 ? (
+      {data.perMember.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '2rem', color: '#9ca3af' }}>
           <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📭</div>
           <p style={{ margin: 0 }}>No activity this week.</p>
@@ -55,8 +54,8 @@ export default function WeeklyRecapPage() {
               </tr>
             </thead>
             <tbody>
-              {data.members.map((m, i) => (
-                <tr key={m.id} style={{ borderBottom: '1px solid #ede9fe', background: i % 2 === 0 ? '#fff' : '#faf9ff' }}>
+              {data.perMember.map((m, i) => (
+                <tr key={m.userId} style={{ borderBottom: '1px solid #ede9fe', background: i % 2 === 0 ? '#fff' : '#faf9ff' }}>
                   <td style={td}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <div style={memberAvatar}>{m.name.charAt(0).toUpperCase()}</div>
@@ -65,14 +64,14 @@ export default function WeeklyRecapPage() {
                   </td>
                   <td style={{ ...td, textAlign: 'right' }}>
                     <span style={{
-                      background: m.net_change >= 0 ? '#d1fae5' : '#fee2e2',
-                      color: m.net_change >= 0 ? '#065f46' : '#991b1b',
+                      background: m.netChange >= 0 ? '#d1fae5' : '#fee2e2',
+                      color: m.netChange >= 0 ? '#065f46' : '#991b1b',
                       padding: '0.25rem 0.7rem',
                       borderRadius: '20px',
                       fontWeight: 700,
                       fontSize: '0.85rem',
                     }}>
-                      {m.net_change >= 0 ? '+' : ''}{Number(m.net_change).toFixed(1)} pts
+                      {m.netChange >= 0 ? '+' : ''}{Number(m.netChange).toFixed(1)} pts
                     </span>
                   </td>
                 </tr>

@@ -1,4 +1,4 @@
-import { useState, FormEvent, useRef } from 'react'
+import { useState, type FormEvent, useRef } from 'react'
 import api from '../api'
 
 interface Props {
