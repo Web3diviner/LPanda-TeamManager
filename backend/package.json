@@ -6,7 +6,6 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "postinstall": "tsc",
     "dev": "ts-node src/index.ts",
     "test": "jest --runInBand",
     "seed:admin": "ts-node src/seed-admin.ts"
