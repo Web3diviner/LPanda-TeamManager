@@ -116,6 +116,7 @@ const card: React.CSSProperties = {
   maxWidth: '380px',
   position: 'relative',
   zIndex: 1,
+  margin: '1rem',
 }
 
 const logoWrap: React.CSSProperties = {

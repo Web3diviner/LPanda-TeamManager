@@ -97,3 +97,32 @@ table {
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #c4b5fd; border-radius: 3px; }
+
+/* ── Mobile responsive utilities ── */
+@media (max-width: 768px) {
+  body { font-size: 14px; }
+
+  h2 { font-size: 1.3rem; }
+
+  main {
+    padding: 1rem !important;
+  }
+
+  /* Tables scroll horizontally on mobile */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Stack grids to single column */
+  .responsive-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Dashboard 2-col → 1-col */
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Users page 2-col → 1-col */
+  .users-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

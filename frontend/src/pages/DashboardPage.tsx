@@ -76,7 +76,8 @@ export default function DashboardPage() {
         )}
       </div>
 
-      <div style={{ ...grid, gridTemplateColumns: '1fr 320px' }}>
+      <div style={grid} className="dash-grid">
+        <style>{`@media(max-width:768px){.dash-grid{grid-template-columns:1fr!important;}}`}</style>
         {/* Main column */}
         <div style={mainCol}>
           {!isAdmin && (
@@ -160,7 +161,7 @@ function Badge({ v, label, bg, c }: { v: number; label: string; bg: string; c: s
 const toastStyle: React.CSSProperties = { position: 'fixed', top: '1rem', right: '1rem', background: 'linear-gradient(135deg,#7c3aed,#a855f7)', color: '#fff', padding: '0.85rem 1.25rem', borderRadius: '10px', boxShadow: '0 8px 24px rgba(124,58,237,0.4)', zIndex: 2000, fontWeight: 600, fontSize: '0.9rem' }
 const pageHeader: React.CSSProperties = { marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }
 const delegateBtn: React.CSSProperties = { padding: '0.6rem 1.2rem', background: 'linear-gradient(135deg,#7c3aed,#a855f7)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', boxShadow: '0 2px 8px rgba(124,58,237,0.3)' }
-const grid: React.CSSProperties = { display: 'grid', gap: '1.5rem', alignItems: 'start' }
+const grid: React.CSSProperties = { display: 'grid', gap: '1.5rem', alignItems: 'start', gridTemplateColumns: '1fr 320px' }
 const mainCol: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '1.5rem' }
 const sideCol: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '1.5rem' }
 const card: React.CSSProperties = { background: '#fff', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 2px 8px rgba(124,58,237,0.08)', border: '1px solid #ede9fe' }

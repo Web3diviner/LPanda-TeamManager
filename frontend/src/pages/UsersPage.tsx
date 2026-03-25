@@ -81,7 +81,8 @@ export default function UsersPage() {
     <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
       <h2 style={{ marginBottom: '1.5rem', color: '#1e1b4b' }}>👥 User Management</h2>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '2rem', alignItems: 'start' }}>
+      <style>{`@media(max-width:768px){.users-grid{grid-template-columns:1fr!important;}}`}</style>
+      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '2rem', alignItems: 'start' }} className="users-grid">
 
         {/* Create Account Form */}
         <div style={{ background: '#fff', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e5e7eb' }}>
@@ -123,6 +124,7 @@ export default function UsersPage() {
           {users.length === 0 ? (
             <p style={{ color: '#9ca3af' }}>No users yet.</p>
           ) : (
+            <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
               <thead>
                 <tr style={{ background: '#f5f3ff' }}>
@@ -179,6 +181,7 @@ export default function UsersPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       </div>
