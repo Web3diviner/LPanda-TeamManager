@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRouter from './routes/auth';
 import tasksRouter from './routes/tasks';
@@ -12,6 +13,13 @@ import timersRouter from './routes/timers';
 import { startScheduler } from './scheduler';
 
 const app = express();
+
+const allowedOrigin = process.env.CORS_ORIGIN ?? 'http://localhost:5173';
+
+app.use(cors({
+  origin: allowedOrigin,
+  credentials: true,
+}));
 
 app.use(express.json({ limit: '10mb' })); // allow base64 screenshots
 app.use(cookieParser());
