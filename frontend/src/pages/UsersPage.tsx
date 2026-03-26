@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import api from '../api'
+import { useIsMobile } from '../hooks/useIsMobile'
 
 interface User {
   id: string
@@ -76,13 +77,14 @@ export default function UsersPage() {
     background: '#fff',
   }
   const labelStyle: React.CSSProperties = { display: 'block', marginBottom: '0.25rem', fontWeight: 600, fontSize: '0.85rem', color: '#374151' }
+  const isMobile = useIsMobile()
 
   return (
     <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
       <h2 style={{ marginBottom: '1.5rem', color: '#1e1b4b' }}>👥 User Management</h2>
 
       <style>{`@media(max-width:768px){.users-grid{grid-template-columns:1fr!important;}}`}</style>
-      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '2rem', alignItems: 'start' }} className="users-grid">
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '320px 1fr', gap: '2rem', alignItems: 'start' }} className="users-grid">
 
         {/* Create Account Form */}
         <div style={{ background: '#fff', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e5e7eb' }}>

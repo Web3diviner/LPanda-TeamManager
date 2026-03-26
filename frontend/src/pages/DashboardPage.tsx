@@ -8,6 +8,7 @@ import AnnouncementBoard from '../components/AnnouncementBoard'
 import TimerWidget from '../components/TimerWidget'
 import FeedbackPanel from '../components/FeedbackPanel'
 import { useAuth } from '../context/AuthContext'
+import { useIsMobile } from '../hooks/useIsMobile'
 import api from '../api'
 
 interface AssignmentCount {
@@ -57,6 +58,7 @@ export default function DashboardPage() {
   }, [user])
 
   const isAdmin = user?.role === 'admin'
+  const isMobile = useIsMobile()
 
   return (
     <div>
@@ -76,8 +78,7 @@ export default function DashboardPage() {
         )}
       </div>
 
-      <div style={grid} className="dash-grid">
-        <style>{`@media(max-width:768px){.dash-grid{grid-template-columns:1fr!important;}}`}</style>
+      <div style={{ ...grid, gridTemplateColumns: isMobile ? '1fr' : '1fr 320px' }} className="dash-grid">
         {/* Main column */}
         <div style={mainCol}>
           {!isAdmin && (
