@@ -140,29 +140,38 @@ router.patch('/:id/assign', authMiddleware, requireAdmin, async (req: Request, r
   }
 });
 
-// PATCH /tasks/:id/confirm — Member confirms completion
-router.patch('/:id/confirm', authMiddleware, async (req: Request, res: Response): Promise<void> => {
+// PATCH /tasks/:id/confirm — Admin confirms a submitted task and awards points
+router.patch('/:id/confirm', authMiddleware, requireAdmin, async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
-  const userId = req.user!.sub;
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     const taskResult = await client.query(
-      'SELECT id, assigned_to, deadline, status FROM tasks WHERE id = $1 FOR UPDATE', [id],
+      'SELECT id, submitted_by, assigned_to, deadline, status, description FROM tasks WHERE id = $1 FOR UPDATE', [id],
     );
     if (taskResult.rows.length === 0) { await client.query('ROLLBACK'); res.status(404).json({ error: 'Task not found' }); return; }
     const task = taskResult.rows[0];
-    if (task.assigned_to !== userId) { await client.query('ROLLBACK'); res.status(403).json({ error: 'Task is not assigned to you' }); return; }
     if (task.status === 'completed') { await client.query('ROLLBACK'); res.status(409).json({ error: 'Task is already completed' }); return; }
+    if (task.status === 'missed') { await client.query('ROLLBACK'); res.status(409).json({ error: 'Cannot confirm a missed task' }); return; }
+
     const completedAt = new Date();
     const updateResult = await client.query(
       `UPDATE tasks SET status='completed', completed_at=$1 WHERE id=$2
        RETURNING id, description, submitted_by, assigned_to, deadline, status, submitted_at, completed_at`,
       [completedAt, id],
     );
-    if (task.deadline && completedAt < new Date(task.deadline)) {
-      await PointsService.award(userId, id, client);
+
+    // Award points to whoever submitted the task
+    const recipientId = task.submitted_by;
+    if (recipientId) {
+      await PointsService.award(recipientId, id, client);
+      // Notify the member
+      await client.query(
+        `INSERT INTO notifications (id, user_id, message) VALUES ($1,$2,$3)`,
+        [randomUUID(), recipientId, `✅ Your task "${task.description}" has been confirmed! Points awarded.`],
+      );
     }
+
     await client.query('COMMIT');
     res.json(updateResult.rows[0]);
   } catch (err) {

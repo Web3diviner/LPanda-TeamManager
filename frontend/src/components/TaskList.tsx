@@ -148,7 +148,7 @@ export default function TaskList({ onAssign, refreshTrigger }: Props) {
                   </td>
                   <td style={td}>
                     <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                      {task.status === 'assigned' && task.assigned_to === user?.id && (
+                      {user?.role === 'admin' && task.status !== 'completed' && task.status !== 'missed' && (
                         <button onClick={() => handleConfirm(task.id)} style={btnConfirm}>
                           ✅ Confirm
                         </button>
