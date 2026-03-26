@@ -60,6 +60,14 @@ export default function TaskForm({ onCreated }: Props) {
       setError('Description cannot be empty.')
       return
     }
+    if (!taskLink.trim()) {
+      setError('Task link is required.')
+      return
+    }
+    if (!screenshotBase64) {
+      setError('Screenshot is required.')
+      return
+    }
     setLoading(true)
     try {
       await api.post('/tasks', {
@@ -100,7 +108,7 @@ export default function TaskForm({ onCreated }: Props) {
 
       {/* Task Link */}
       <div>
-        <label style={labelStyle}>Task Link <span style={{ color: '#9ca3af', fontWeight: 400 }}>(optional)</span></label>
+        <label style={labelStyle}>Task Link <span style={{ color: '#ef4444' }}>*</span></label>
         <div style={{ position: 'relative' }}>
           <span style={linkIcon}>🔗</span>
           <input
@@ -108,6 +116,7 @@ export default function TaskForm({ onCreated }: Props) {
             placeholder="https://..."
             value={taskLink}
             onChange={e => setTaskLink(e.target.value)}
+            required
             style={{ ...inputStyle, paddingLeft: '2.2rem' }}
           />
         </div>
@@ -115,7 +124,7 @@ export default function TaskForm({ onCreated }: Props) {
 
       {/* Screenshot Drop Zone */}
       <div>
-        <label style={labelStyle}>Screenshot <span style={{ color: '#9ca3af', fontWeight: 400 }}>(optional)</span></label>
+        <label style={labelStyle}>Screenshot <span style={{ color: '#ef4444' }}>*</span></label>
         {screenshotPreview ? (
           <div style={previewWrap}>
             <img src={screenshotPreview} alt="Screenshot preview" style={previewImg} />
