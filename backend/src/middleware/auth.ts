@@ -5,7 +5,10 @@ import type { JwtUserPayload } from '../types/express';
 const JWT_SECRET = process.env.JWT_SECRET ?? 'dev-secret-change-in-production';
 
 export function authMiddleware(req: Request, res: Response, next: NextFunction): void {
-  const token: string | undefined = req.cookies?.token;
+  const authHeader = req.headers.authorization;
+  const token: string | undefined = authHeader?.startsWith('Bearer ')
+    ? authHeader.slice(7)
+    : req.cookies?.token; // fallback for local dev
 
   if (!token) {
     res.status(401).json({ error: 'Authentication required' });

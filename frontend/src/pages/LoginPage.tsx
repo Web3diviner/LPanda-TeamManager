@@ -18,6 +18,7 @@ export default function LoginPage() {
     try {
       const res = await api.post('/auth/login', { email, password })
       const data = res.data
+      if (data.token) localStorage.setItem('token', data.token)
       setUser({ id: data.id, name: data.name, email: data.email, role: data.role })
       navigate('/dashboard')
     } catch (err: unknown) {

@@ -45,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // ignore errors
     }
     localStorage.removeItem('user')
+    localStorage.removeItem('token')
     setUserState(null)
   }
 
