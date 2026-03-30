@@ -10,6 +10,8 @@ import delegatedRouter from './routes/delegated';
 import notificationsRouter from './routes/notifications';
 import feedbackRouter from './routes/feedback';
 import timersRouter from './routes/timers';
+import scheduleRouter from './routes/schedule';
+import meetingsRouter from './routes/meetings';
 import { startScheduler } from './scheduler';
 
 const app = express();
@@ -33,6 +35,8 @@ app.use('/delegated', delegatedRouter);
 app.use('/notifications', notificationsRouter);
 app.use('/feedback', feedbackRouter);
 app.use('/timers', timersRouter);
+app.use('/schedule', scheduleRouter);
+app.use('/meetings', meetingsRouter);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
