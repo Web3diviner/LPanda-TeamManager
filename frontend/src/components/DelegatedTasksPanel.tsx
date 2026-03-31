@@ -48,6 +48,17 @@ export default function DelegatedTasksPanel({ refreshTrigger }: Props) {
     }
   }
 
+  async function handleCancel(id: string, title: string) {
+    if (!confirm(`Cancel delegated task "${title}"? This cannot be undone.`)) return
+    try {
+      await api.delete(`/delegated/${id}`)
+      setTasks(prev => prev.filter(t => t.id !== id))
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to cancel.'
+      alert(msg)
+    }
+  }
+
   if (loading) return <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>Loading…</p>
   if (tasks.length === 0) return (
     <div style={{ textAlign: 'center', padding: '1.5rem', color: '#9ca3af' }}>
@@ -85,6 +96,11 @@ export default function DelegatedTasksPanel({ refreshTrigger }: Props) {
                 ✅ Mark Complete
               </button>
             )}
+            {user?.role === 'admin' && task.status !== 'completed' && (
+              <button onClick={() => handleCancel(task.id, task.title)} style={cancelBtn}>
+                🚫 Cancel
+              </button>
+            )}
           </div>
         )
       })}
@@ -104,5 +120,10 @@ const remarkBadge: React.CSSProperties = {
 const completeBtn: React.CSSProperties = {
   marginTop: '0.35rem', padding: '0.35rem 0.85rem',
   background: '#d1fae5', color: '#065f46', border: '1px solid #6ee7b7',
+  borderRadius: '6px', fontWeight: 600, fontSize: '0.78rem', cursor: 'pointer',
+}
+const cancelBtn: React.CSSProperties = {
+  marginTop: '0.35rem', marginLeft: '0.5rem', padding: '0.35rem 0.85rem',
+  background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5',
   borderRadius: '6px', fontWeight: 600, fontSize: '0.78rem', cursor: 'pointer',
 }
