@@ -95,43 +95,28 @@ export default function LeaderboardPage() {
 }
 
 const podiumWrap: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'flex-end',
-  gap: '1rem',
-  marginBottom: '2rem',
-  padding: '1.5rem',
-  background: 'linear-gradient(135deg, #f5f3ff, #ede9fe)',
-  borderRadius: '12px',
-  border: '1px solid #ddd6fe',
+  display: 'flex', justifyContent: 'center', alignItems: 'flex-end',
+  gap: '1rem', marginBottom: '2rem', padding: '2rem 1.5rem 0',
+  background: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)',
+  borderRadius: '16px', border: '1px solid #ddd6fe',
+  boxShadow: '0 4px 16px rgba(124,58,237,0.08)',
 }
 
 const podiumItem: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  gap: '0.25rem',
-  border: '2px solid transparent',
-  borderRadius: '10px',
-  padding: '0.5rem',
-  minWidth: '90px',
+  display: 'flex', flexDirection: 'column', alignItems: 'center',
+  gap: '0.25rem', border: '2px solid transparent', borderRadius: '12px',
+  padding: '0.75rem 0.5rem', minWidth: '100px',
 }
 
 const podiumBar: React.CSSProperties = {
-  width: '60px',
-  borderRadius: '6px 6px 0 0',
-  marginTop: '0.5rem',
+  width: '64px', borderRadius: '8px 8px 0 0', marginTop: '0.5rem',
 }
 
 const youBadge: React.CSSProperties = {
-  marginLeft: '0.5rem',
-  background: '#ede9fe',
-  color: '#7c3aed',
-  padding: '0.1rem 0.45rem',
-  borderRadius: '10px',
-  fontSize: '0.72rem',
-  fontWeight: 700,
+  marginLeft: '0.5rem', background: 'linear-gradient(135deg,#7c3aed,#a855f7)',
+  color: '#fff', padding: '0.1rem 0.5rem', borderRadius: '10px',
+  fontSize: '0.7rem', fontWeight: 700,
 }
 
-const th: React.CSSProperties = { padding: '0.65rem 1rem', fontWeight: 600, textAlign: 'left', fontSize: '0.82rem' }
-const td: React.CSSProperties = { padding: '0.75rem 1rem', verticalAlign: 'middle' }
+const th: React.CSSProperties = { padding: '0.75rem 1rem', fontWeight: 600, textAlign: 'left', fontSize: '0.8rem', letterSpacing: '0.05em', textTransform: 'uppercase' }
+const td: React.CSSProperties = { padding: '0.85rem 1rem', verticalAlign: 'middle' }

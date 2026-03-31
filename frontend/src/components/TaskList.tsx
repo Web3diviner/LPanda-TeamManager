@@ -78,8 +78,7 @@ export default function TaskList({ onAssign, refreshTrigger }: Props) {
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
           <thead>
-            <tr style={{ background: 'linear-gradient(135deg, #4c1d95, #7c3aed)', color: '#fff' }}>
-              <th style={th}>Description</th>
+            <tr style={{ background: 'linear-gradient(135deg, #4c1d95, #7c3aed)', color: '#fff' }}>              <th style={th}>Description</th>
               <th style={th}>Submitted By</th>
               <th style={th}>Status</th>
               <th style={th}>Assigned To</th>
@@ -170,13 +169,13 @@ export default function TaskList({ onAssign, refreshTrigger }: Props) {
   )
 }
 
-const th: React.CSSProperties = { padding: '0.65rem 0.85rem', fontWeight: 600, textAlign: 'left', fontSize: '0.82rem', letterSpacing: '0.03em' }
-const td: React.CSSProperties = { padding: '0.65rem 0.85rem', verticalAlign: 'middle' }
-const nameChip: React.CSSProperties = { background: '#ede9fe', color: '#5b21b6', padding: '0.2rem 0.55rem', borderRadius: '20px', fontSize: '0.78rem', fontWeight: 600, whiteSpace: 'nowrap' }
-const btnConfirm: React.CSSProperties = { background: '#d1fae5', color: '#065f46', border: '1px solid #6ee7b7', borderRadius: '6px', padding: '0.3rem 0.65rem', fontWeight: 600, fontSize: '0.78rem', cursor: 'pointer' }
-const btnAssign: React.CSSProperties = { background: '#ede9fe', color: '#5b21b6', border: '1px solid #c4b5fd', borderRadius: '6px', padding: '0.3rem 0.65rem', fontWeight: 600, fontSize: '0.78rem', cursor: 'pointer' }
-const attachBtn: React.CSSProperties = { background: '#fef3c7', border: '1px solid #fcd34d', borderRadius: '6px', padding: '0.25rem 0.5rem', cursor: 'pointer', fontSize: '0.9rem' }
-const linkBtn: React.CSSProperties = { background: '#dbeafe', border: '1px solid #93c5fd', borderRadius: '6px', padding: '0.25rem 0.5rem', fontSize: '0.9rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }
-const lightboxOverlay: React.CSSProperties = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000 }
-const lightboxImg: React.CSSProperties = { maxWidth: '90vw', maxHeight: '85vh', borderRadius: '10px', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }
-const lightboxClose: React.CSSProperties = { position: 'fixed', top: '1rem', right: '1rem', background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', borderRadius: '8px', padding: '0.4rem 0.8rem', fontSize: '1rem', cursor: 'pointer', fontWeight: 700 }
+const th: React.CSSProperties = { padding: '0.7rem 0.85rem', fontWeight: 600, textAlign: 'left', fontSize: '0.75rem', letterSpacing: '0.06em', textTransform: 'uppercase' }
+const td: React.CSSProperties = { padding: '0.75rem 0.85rem', verticalAlign: 'middle' }
+const nameChip: React.CSSProperties = { background: 'linear-gradient(135deg,#ede9fe,#ddd6fe)', color: '#5b21b6', padding: '0.2rem 0.6rem', borderRadius: '20px', fontSize: '0.78rem', fontWeight: 600, whiteSpace: 'nowrap' }
+const btnConfirm: React.CSSProperties = { background: 'linear-gradient(135deg,#d1fae5,#a7f3d0)', color: '#065f46', border: '1px solid #6ee7b7', borderRadius: '8px', padding: '0.3rem 0.7rem', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer' }
+const btnAssign: React.CSSProperties = { background: 'linear-gradient(135deg,#ede9fe,#ddd6fe)', color: '#5b21b6', border: '1px solid #c4b5fd', borderRadius: '8px', padding: '0.3rem 0.7rem', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer' }
+const attachBtn: React.CSSProperties = { background: '#fef3c7', border: '1px solid #fcd34d', borderRadius: '8px', padding: '0.25rem 0.55rem', cursor: 'pointer', fontSize: '0.9rem' }
+const linkBtn: React.CSSProperties = { background: '#dbeafe', border: '1px solid #93c5fd', borderRadius: '8px', padding: '0.25rem 0.55rem', fontSize: '0.9rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }
+const lightboxOverlay: React.CSSProperties = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000, backdropFilter: 'blur(4px)' }
+const lightboxImg: React.CSSProperties = { maxWidth: '90vw', maxHeight: '85vh', borderRadius: '12px', boxShadow: '0 24px 64px rgba(0,0,0,0.5)' }
+const lightboxClose: React.CSSProperties = { position: 'fixed', top: '1rem', right: '1rem', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', borderRadius: '10px', padding: '0.4rem 0.85rem', fontSize: '1rem', cursor: 'pointer', fontWeight: 700, backdropFilter: 'blur(8px)' }

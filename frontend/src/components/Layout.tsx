@@ -67,9 +67,10 @@ export default function Layout() {
 }
 
 const navStyle: React.CSSProperties = {
-  background: 'linear-gradient(135deg, #4c1d95 0%, #7c3aed 50%, #a855f7 100%)',
-  boxShadow: '0 4px 16px rgba(124,58,237,0.35)',
+  background: 'linear-gradient(135deg, #0f0720 0%, #2d0f6b 50%, #5b21b6 100%)',
+  boxShadow: '0 4px 24px rgba(0,0,0,0.25)',
   position: 'sticky', top: 0, zIndex: 100,
+  borderBottom: '1px solid rgba(255,255,255,0.08)',
 }
 const navInner: React.CSSProperties = {
   display: 'flex', alignItems: 'center', gap: '1rem',

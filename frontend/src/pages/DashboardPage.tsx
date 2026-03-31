@@ -61,19 +61,27 @@ export default function DashboardPage() {
   const isMobile = useIsMobile()
 
   return (
-    <div>
-      {toast && <div style={toastStyle}>{toast}</div>}
+    <div style={{ animation: 'fadeIn 0.3s ease' }}>
+      {toast && (
+        <div style={toastStyle}>
+          <span>🎯</span> You have a new task assigned!
+        </div>
+      )}
 
+      {/* Page header */}
       <div style={pageHeader}>
         <div>
-          <h2 style={{ marginBottom: '0.25rem' }}>Dashboard</h2>
-          <p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>
-            Welcome back, <strong>{user?.name}</strong> {isAdmin ? '👑' : '👋'}
+          <h2 style={{ marginBottom: '0.2rem' }}>
+            {isAdmin ? '👑 Admin Dashboard' : '📋 My Dashboard'}
+          </h2>
+          <p style={{ margin: 0, color: '#6b7280', fontSize: '0.875rem' }}>
+            Welcome back, <strong style={{ color: '#5b21b6' }}>{user?.name}</strong>
+            {isAdmin ? ' — manage your team from here' : ' — track your progress'}
           </p>
         </div>
         {isAdmin && (
           <button onClick={() => setShowDelegate(true)} style={delegateBtn}>
-            🎯 Delegate Task
+            <span>🎯</span> Delegate Task
           </button>
         )}
       </div>
@@ -159,13 +167,49 @@ function Badge({ v, label, bg, c }: { v: number; label: string; bg: string; c: s
   return <span style={{ background: bg, color: c, padding: '0.15rem 0.45rem', borderRadius: '10px', fontSize: '0.72rem', fontWeight: 700, whiteSpace: 'nowrap' }}>{v} {label}</span>
 }
 
-const toastStyle: React.CSSProperties = { position: 'fixed', top: '1rem', right: '1rem', background: 'linear-gradient(135deg,#7c3aed,#a855f7)', color: '#fff', padding: '0.85rem 1.25rem', borderRadius: '10px', boxShadow: '0 8px 24px rgba(124,58,237,0.4)', zIndex: 2000, fontWeight: 600, fontSize: '0.9rem' }
-const pageHeader: React.CSSProperties = { marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }
-const delegateBtn: React.CSSProperties = { padding: '0.6rem 1.2rem', background: 'linear-gradient(135deg,#7c3aed,#a855f7)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', boxShadow: '0 2px 8px rgba(124,58,237,0.3)' }
+const toastStyle: React.CSSProperties = {
+  position: 'fixed', top: '1.25rem', right: '1.25rem',
+  background: 'linear-gradient(135deg,#5b21b6,#7c3aed)',
+  color: '#fff', padding: '0.85rem 1.25rem', borderRadius: '12px',
+  boxShadow: '0 8px 32px rgba(124,58,237,0.45)', zIndex: 2000,
+  fontWeight: 600, fontSize: '0.9rem', display: 'flex', gap: '0.5rem', alignItems: 'center',
+  border: '1px solid rgba(255,255,255,0.2)',
+}
+const pageHeader: React.CSSProperties = {
+  marginBottom: '1.75rem', display: 'flex', alignItems: 'center',
+  justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem',
+}
+const delegateBtn: React.CSSProperties = {
+  padding: '0.65rem 1.35rem',
+  background: 'linear-gradient(135deg,#5b21b6,#7c3aed)',
+  color: '#fff', border: 'none', borderRadius: '10px',
+  fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer',
+  boxShadow: '0 4px 12px rgba(124,58,237,0.35)',
+  display: 'flex', alignItems: 'center', gap: '0.4rem',
+}
 const grid: React.CSSProperties = { display: 'grid', gap: '1.5rem', alignItems: 'start', gridTemplateColumns: '1fr 320px' }
 const mainCol: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '1.5rem' }
 const sideCol: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '1.5rem' }
-const card: React.CSSProperties = { background: '#fff', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 2px 8px rgba(124,58,237,0.08)', border: '1px solid #ede9fe' }
-const cardTitle: React.CSSProperties = { fontSize: '1rem', fontWeight: 700, color: '#4c1d95', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '2px solid #ede9fe' }
-const memberRow: React.CSSProperties = { display: 'flex', alignItems: 'flex-start', gap: '0.65rem', padding: '0.65rem', background: '#faf9ff', borderRadius: '8px', border: '1px solid #ede9fe' }
-const avatar: React.CSSProperties = { width: '34px', height: '34px', borderRadius: '50%', flexShrink: 0, background: 'linear-gradient(135deg,#7c3aed,#a855f7)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem' }
+const card: React.CSSProperties = {
+  background: '#fff', borderRadius: '16px', padding: '1.5rem',
+  boxShadow: '0 2px 12px rgba(124,58,237,0.07)',
+  border: '1px solid #ede9fe',
+  transition: 'box-shadow 0.2s ease',
+}
+const cardTitle: React.CSSProperties = {
+  fontSize: '0.95rem', fontWeight: 700, color: '#4c1d95',
+  marginBottom: '1rem', paddingBottom: '0.6rem',
+  borderBottom: '2px solid #f0ebff',
+  display: 'flex', alignItems: 'center', gap: '0.4rem',
+}
+const memberRow: React.CSSProperties = {
+  display: 'flex', alignItems: 'flex-start', gap: '0.65rem',
+  padding: '0.75rem', background: '#faf9ff', borderRadius: '10px',
+  border: '1px solid #ede9fe', transition: 'background 0.15s',
+}
+const avatar: React.CSSProperties = {
+  width: '36px', height: '36px', borderRadius: '50%', flexShrink: 0,
+  background: 'linear-gradient(135deg,#7c3aed,#a855f7)', color: '#fff',
+  display: 'flex', alignItems: 'center', justifyContent: 'center',
+  fontWeight: 800, fontSize: '0.9rem', boxShadow: '0 2px 8px rgba(124,58,237,0.3)',
+}
