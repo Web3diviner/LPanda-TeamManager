@@ -21,30 +21,16 @@ router.get('/', authMiddleware, async (_req: Request, res: Response): Promise<vo
   }
 });
 
-// POST /meetings/room — create a Daily.co room
+// POST /meetings/room — create a meeting record with a Jitsi room URL
 router.post('/room', authMiddleware, requireAdmin, async (req: Request, res: Response): Promise<void> => {
-  const { title } = req.body;
+  const { title, room_url } = req.body;
   if (!title) { res.status(400).json({ error: 'title is required' }); return; }
 
-  const dailyApiKey = process.env.DAILY_API_KEY;
-  if (!dailyApiKey) { res.status(500).json({ error: 'DAILY_API_KEY not configured' }); return; }
-
   try {
-    const roomRes = await fetch('https://api.daily.co/v1/rooms', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${dailyApiKey}` },
-      body: JSON.stringify({
-        name: `lpanda-${Date.now()}`,
-        properties: { enable_recording: 'cloud', max_participants: 20, exp: Math.floor(Date.now() / 1000) + 7200 },
-      }),
-    });
-    const room = await roomRes.json() as { url?: string; error?: string };
-    if (!room.url) { res.status(500).json({ error: room.error ?? 'Failed to create room' }); return; }
-
     const id = randomUUID();
     const result = await pool.query(
       `INSERT INTO meeting_summaries (id, title, room_url, created_by) VALUES ($1,$2,$3,$4) RETURNING *`,
-      [id, title, room.url, req.user!.sub],
+      [id, title, room_url ?? null, req.user!.sub],
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
