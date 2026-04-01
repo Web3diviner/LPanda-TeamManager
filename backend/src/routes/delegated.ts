@@ -85,7 +85,7 @@ router.patch('/:id/complete', authMiddleware, async (req: Request, res: Response
       [completedAt, id],
     );
     if (task.deadline && completedAt < new Date(task.deadline)) {
-      await PointsService.award(userId, id, client);
+      await PointsService.award(userId, null, client);
     }
     await client.query('COMMIT');
     res.json(updated.rows[0]);
