@@ -26,6 +26,20 @@ export default function UsersPage() {
   const [resetUserId, setResetUserId] = useState<string | null>(null)
   const [newPassword, setNewPassword] = useState('')
   const [resetSaving, setResetSaving] = useState(false)
+  const [showSiteReset, setShowSiteReset] = useState(false)
+  const [siteResetting, setSiteResetting] = useState(false)
+
+  async function handleSiteReset() {
+    setSiteResetting(true)
+    try {
+      await api.post('/auth/reset')
+      setShowSiteReset(false)
+      alert('✅ Site activity has been reset. All tasks, points, and activity cleared.')
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to reset.'
+      alert(msg)
+    } finally { setSiteResetting(false) }
+  }
   async function fetchUsers() {
     try {
       const res = await api.get('/auth/users')
@@ -99,6 +113,16 @@ export default function UsersPage() {
   return (
     <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
       <h2 style={{ marginBottom: '1.5rem', color: '#1e1b4b' }}>👥 User Management</h2>
+
+      <div style={{ marginBottom: '1.5rem', padding: '1rem 1.25rem', background: '#fff5f5', border: '1px solid #fecaca', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <div>
+          <div style={{ fontWeight: 700, color: '#dc2626', fontSize: '0.9rem' }}>⚠️ Danger Zone</div>
+          <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.2rem' }}>Reset all tasks, points, and site activity. Users are kept.</div>
+        </div>
+        <button onClick={() => setShowSiteReset(true)} style={{ padding: '0.5rem 1rem', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}>
+          🔄 Reset Site Activity
+        </button>
+      </div>
 
       <style>{`@media(max-width:768px){.users-grid{grid-template-columns:1fr!important;}}`}</style>
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '320px 1fr', gap: '2rem', alignItems: 'start' }} className="users-grid">
@@ -204,11 +228,31 @@ export default function UsersPage() {
             </div>
           )}
         </div>
-          </div>
       </div>
-    </div>
 
-      {/* Reset Password Modal */}
+      {/* Site Reset Confirmation Modal */}
+      {showSiteReset && (
+        <div style={overlay}>
+          <div style={{ ...modal, maxWidth: '420px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>⚠️</div>
+              <h3 style={{ margin: '0 0 0.5rem', color: '#dc2626' }}>Reset All Site Activity?</h3>
+              <p style={{ margin: 0, fontSize: '0.875rem', color: '#6b7280', lineHeight: 1.6 }}>
+                This will permanently delete <strong>all tasks, delegated tasks, points, transactions, notifications, announcements, and feedback</strong>. All member points will be reset to 0.<br /><br />
+                <strong>Users and accounts are NOT deleted.</strong> This cannot be undone.
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button onClick={() => setShowSiteReset(false)} style={{ flex: 1, padding: '0.65rem', background: '#f3f4f6', border: '1px solid #e5e7eb', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
+                Cancel
+              </button>
+              <button onClick={handleSiteReset} disabled={siteResetting} style={{ flex: 1, padding: '0.65rem', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>
+                {siteResetting ? '⏳ Resetting…' : '🔄 Yes, Reset Everything'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {resetUserId && (
         <div style={overlay}>
           <div style={modal}>

@@ -132,6 +132,30 @@ router.get('/me', authMiddleware, async (req: Request, res: Response): Promise<v
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+// POST /auth/reset — Admin only; wipe all activity data
+router.post('/reset', authMiddleware, requireAdmin, async (_req: Request, res: Response): Promise<void> => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query('DELETE FROM notifications');
+    await client.query('DELETE FROM feedback');
+    await client.query('DELETE FROM point_transactions');
+    await client.query('DELETE FROM delegated_tasks');
+    await client.query('DELETE FROM task_timers');
+    await client.query('DELETE FROM announcements');
+    await client.query('DELETE FROM tasks');
+    await client.query('UPDATE users SET points = 0');
+    await client.query('COMMIT');
+    res.json({ message: 'Site activity reset successfully.' });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Reset error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    client.release();
+  }
+});
+
 router.get('/users', authMiddleware, requireAdmin, async (_req: Request, res: Response): Promise<void> => {
   try {
     const result = await pool.query(
