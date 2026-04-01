@@ -23,7 +23,9 @@ export default function UsersPage() {
   // role_title editing state: userId -> draft value
   const [titleDrafts, setTitleDrafts] = useState<Record<string, string>>({})
   const [titleSaving, setTitleSaving] = useState<Record<string, boolean>>({})
-
+  const [resetUserId, setResetUserId] = useState<string | null>(null)
+  const [newPassword, setNewPassword] = useState('')
+  const [resetSaving, setResetSaving] = useState(false)
   async function fetchUsers() {
     try {
       const res = await api.get('/auth/users')
@@ -69,6 +71,21 @@ export default function UsersPage() {
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, role_title: res.data.role_title } : u))
     } catch { alert('Failed to save title') }
     finally { setTitleSaving(prev => ({ ...prev, [userId]: false })) }
+  }
+
+  async function handleResetPassword(e: React.FormEvent) {
+    e.preventDefault()
+    if (!resetUserId) return
+    setResetSaving(true)
+    try {
+      await api.patch(`/auth/users/${resetUserId}/password`, { password: newPassword })
+      setResetUserId(null)
+      setNewPassword('')
+      alert('Password reset successfully.')
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to reset password'
+      alert(msg)
+    } finally { setResetSaving(false) }
   }
 
   const inputStyle: React.CSSProperties = {
@@ -169,15 +186,16 @@ export default function UsersPage() {
                     </td>
                     <td style={{ padding: '0.6rem 0.75rem', fontWeight: 700, color: '#7c3aed' }}>{u.points}</td>
                     <td style={{ padding: '0.6rem 0.75rem' }}>
-                      <button
-                        onClick={() => handleDelete(u)}
-                        style={{
-                          padding: '0.3rem 0.7rem', background: '#fee2e2', color: '#dc2626',
-                          border: '1px solid #fca5a5', borderRadius: '5px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600,
-                        }}
-                      >
-                        🗑 Delete
-                      </button>
+                      <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                        <button onClick={() => { setResetUserId(u.id); setNewPassword('') }}
+                          style={{ padding: '0.3rem 0.7rem', background: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d', borderRadius: '5px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
+                          🔑 Reset PW
+                        </button>
+                        <button onClick={() => handleDelete(u)}
+                          style={{ padding: '0.3rem 0.7rem', background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: '5px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
+                          🗑 Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -186,7 +204,52 @@ export default function UsersPage() {
             </div>
           )}
         </div>
+          </div>
       </div>
     </div>
+
+      {/* Reset Password Modal */}
+      {resetUserId && (
+        <div style={overlay}>
+          <div style={modal}>
+            <h3 style={{ margin: '0 0 1rem', color: '#4c1d95' }}>🔑 Reset Password</h3>
+            <p style={{ margin: '0 0 1rem', fontSize: '0.875rem', color: '#6b7280' }}>
+              Set a new password for <strong>{users.find(u => u.id === resetUserId)?.name}</strong>
+            </p>
+            <form onSubmit={handleResetPassword} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                placeholder="New password (min 6 chars)"
+                minLength={6}
+                required
+                style={{ ...inputStyle, padding: '0.65rem 0.85rem' }}
+                autoFocus
+              />
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button type="submit" disabled={resetSaving} style={{ flex: 1, padding: '0.6rem', background: 'linear-gradient(135deg,#7c3aed,#4c1d95)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>
+                  {resetSaving ? 'Saving…' : 'Reset Password'}
+                </button>
+                <button type="button" onClick={() => setResetUserId(null)} style={{ padding: '0.6rem 1rem', background: '#f3f4f6', color: '#374151', border: '1px solid #e5e7eb', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
   )
+}
+
+const overlay: React.CSSProperties = {
+  position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+  display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+  backdropFilter: 'blur(4px)',
+}
+const modal: React.CSSProperties = {
+  background: '#fff', borderRadius: '16px', padding: '2rem',
+  width: '100%', maxWidth: '380px', boxShadow: '0 24px 64px rgba(0,0,0,0.2)',
+  margin: '1rem',
 }

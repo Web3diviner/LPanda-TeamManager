@@ -165,7 +165,23 @@ router.patch('/users/:id', authMiddleware, requireAdmin, async (req: Request, re
   }
 });
 
-// DELETE /auth/users/:id — Admin only; delete a user account and all related data
+// PATCH /auth/users/:id/password — Admin only; reset a user's password
+router.patch('/users/:id/password', authMiddleware, requireAdmin, async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const { password } = req.body;
+  if (!password || typeof password !== 'string' || password.length < 6) {
+    res.status(400).json({ error: 'Password must be at least 6 characters' }); return;
+  }
+  try {
+    const hash = await bcrypt.hash(password, 10);
+    const result = await pool.query('UPDATE users SET password=$1 WHERE id=$2 RETURNING id', [hash, id]);
+    if (result.rows.length === 0) { res.status(404).json({ error: 'User not found' }); return; }
+    res.json({ message: 'Password updated' });
+  } catch (err) {
+    console.error('Reset password error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 router.delete('/users/:id', authMiddleware, requireAdmin, async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const adminId = req.user!.sub;
