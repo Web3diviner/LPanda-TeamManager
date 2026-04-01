@@ -23,7 +23,7 @@ app.use(cors({
   credentials: true,
 }));
 
-app.use(express.json({ limit: '10mb' })); // allow base64 screenshots
+app.use(express.json({ limit: '20mb' })); // allow base64 avatars + screenshots
 app.use(cookieParser());
 
 app.use('/auth', authRouter);

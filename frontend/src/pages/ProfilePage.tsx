@@ -29,18 +29,35 @@ export default function ProfilePage() {
     const file = e.target.files?.[0]
     if (!file) return
     if (!file.type.startsWith('image/')) { alert('Only image files are supported.'); return }
-    if (file.size > 2 * 1024 * 1024) { alert('Image must be under 2MB.'); return }
+    if (file.size > 5 * 1024 * 1024) { alert('Image must be under 5MB.'); return }
     setUploadingAvatar(true)
-    const reader = new FileReader()
-    reader.onload = async (ev) => {
-      const base64 = ev.target?.result as string
-      try {
-        const res = await api.patch('/auth/profile', { avatar_url: base64 })
-        if (user) setUser({ ...user, avatar_url: res.data.avatar_url })
-      } catch { alert('Failed to upload avatar.') }
-      finally { setUploadingAvatar(false) }
-    }
-    reader.readAsDataURL(file)
+    try {
+      // Compress image to max 400x400 JPEG
+      const compressed = await compressImage(file, 400, 0.8)
+      const res = await api.patch('/auth/profile', { avatar_url: compressed })
+      if (user) setUser({ ...user, avatar_url: res.data.avatar_url })
+    } catch { alert('Failed to upload avatar. Make sure the migration has been run in Supabase.') }
+    finally { setUploadingAvatar(false) }
+  }
+
+  function compressImage(file: File, maxSize: number, quality: number): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      const url = URL.createObjectURL(file)
+      img.onload = () => {
+        URL.revokeObjectURL(url)
+        const canvas = document.createElement('canvas')
+        let { width, height } = img
+        if (width > height) { if (width > maxSize) { height = (height * maxSize) / width; width = maxSize } }
+        else { if (height > maxSize) { width = (width * maxSize) / height; height = maxSize } }
+        canvas.width = width; canvas.height = height
+        const ctx = canvas.getContext('2d')!
+        ctx.drawImage(img, 0, 0, width, height)
+        resolve(canvas.toDataURL('image/jpeg', quality))
+      }
+      img.onerror = reject
+      img.src = url
+    })
   }
 
   async function markAllRead() {
