@@ -102,7 +102,36 @@ router.post('/register', authMiddleware, requireAdmin, async (req: Request, res:
   }
 });
 
-// GET /auth/users — Admin only; list all users
+// PATCH /auth/profile — update own avatar
+router.patch('/profile', authMiddleware, async (req: Request, res: Response): Promise<void> => {
+  const { avatar_url } = req.body;
+  if (typeof avatar_url !== 'string') { res.status(400).json({ error: 'avatar_url must be a string' }); return; }
+  try {
+    const result = await pool.query(
+      `UPDATE users SET avatar_url=$1 WHERE id=$2 RETURNING id, name, email, role, avatar_url`,
+      [avatar_url || null, req.user!.sub],
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Update profile error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /auth/me — get own profile including avatar
+router.get('/me', authMiddleware, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await pool.query(
+      `SELECT id, name, email, role, avatar_url FROM users WHERE id=$1`,
+      [req.user!.sub],
+    );
+    if (result.rows.length === 0) { res.status(404).json({ error: 'User not found' }); return; }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Get me error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 router.get('/users', authMiddleware, requireAdmin, async (_req: Request, res: Response): Promise<void> => {
   try {
     const result = await pool.query(

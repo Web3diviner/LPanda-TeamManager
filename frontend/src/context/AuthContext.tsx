@@ -6,6 +6,7 @@ export interface User {
   name: string
   email: string
   role: 'admin' | 'member'
+  avatar_url?: string | null
 }
 
 interface AuthContextValue {

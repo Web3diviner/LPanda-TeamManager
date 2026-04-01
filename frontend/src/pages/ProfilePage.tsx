@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import api from '../api'
 import { useAuth } from '../context/AuthContext'
 
@@ -7,17 +7,41 @@ interface Notification { id: string; message: string; read: boolean; created_at:
 interface PointsData { balance: number; transactions: Transaction[] }
 
 export default function ProfilePage() {
-  const { user } = useAuth()
+  const { user, setUser } = useAuth()
   const [data, setData] = useState<PointsData | null>(null)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [error, setError] = useState('')
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     api.get('/points/me')
       .then(res => setData({ balance: res.data.points, transactions: res.data.transactions }))
       .catch(() => setError('Failed to load profile data.'))
     api.get('/notifications').then(res => setNotifications(res.data)).catch(() => {})
+    // Refresh avatar from server
+    api.get('/auth/me').then(res => {
+      if (user) setUser({ ...user, avatar_url: res.data.avatar_url })
+    }).catch(() => {})
   }, [])
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) { alert('Only image files are supported.'); return }
+    if (file.size > 2 * 1024 * 1024) { alert('Image must be under 2MB.'); return }
+    setUploadingAvatar(true)
+    const reader = new FileReader()
+    reader.onload = async (ev) => {
+      const base64 = ev.target?.result as string
+      try {
+        const res = await api.patch('/auth/profile', { avatar_url: base64 })
+        if (user) setUser({ ...user, avatar_url: res.data.avatar_url })
+      } catch { alert('Failed to upload avatar.') }
+      finally { setUploadingAvatar(false) }
+    }
+    reader.readAsDataURL(file)
+  }
 
   async function markAllRead() {
     await api.patch('/notifications/read-all').catch(() => {})
@@ -37,7 +61,22 @@ export default function ProfilePage() {
       <div style={heroCard}>
         <div style={heroBg} />
         <div style={heroContent}>
-          <div style={avatarCircle}>{user?.name?.charAt(0).toUpperCase() || '?'}</div>
+          <div style={{ position: 'relative', flexShrink: 0 }}>
+            {user?.avatar_url ? (
+              <img src={user.avatar_url} alt="Avatar" style={{ ...avatarCircle, objectFit: 'cover' }} />
+            ) : (
+              <div style={avatarCircle}>{user?.name?.charAt(0).toUpperCase() || '?'}</div>
+            )}
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingAvatar}
+              style={avatarEditBtn}
+              title="Change photo"
+            >
+              {uploadingAvatar ? '⏳' : '📷'}
+            </button>
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: 'none' }} />
+          </div>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 800, fontSize: '1.3rem', color: '#1a1035' }}>{user?.name}</div>
             <div style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '0.2rem' }}>{user?.email}</div>
@@ -155,6 +194,14 @@ const avatarCircle: React.CSSProperties = {
   display: 'flex', alignItems: 'center', justifyContent: 'center',
   fontSize: '2rem', fontWeight: 900, flexShrink: 0,
   border: '4px solid #fff', boxShadow: '0 4px 16px rgba(124,58,237,0.35)',
+}
+const avatarEditBtn: React.CSSProperties = {
+  position: 'absolute', bottom: 0, right: 0,
+  width: '26px', height: '26px', borderRadius: '50%',
+  background: '#7c3aed', color: '#fff', border: '2px solid #fff',
+  fontSize: '0.7rem', cursor: 'pointer', display: 'flex',
+  alignItems: 'center', justifyContent: 'center',
+  boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
 }
 const roleBadge: React.CSSProperties = {
   display: 'inline-block', marginTop: '0.4rem',
