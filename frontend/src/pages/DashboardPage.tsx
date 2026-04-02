@@ -25,7 +25,7 @@ export default function DashboardPage() {
   const [counts, setCounts] = useState<AssignmentCount[]>([])
   const prevAssignedTaskIds = useRef<Set<string>>(new Set())
 
-  function refresh() {
+  function refresh() {h
     setRefreshTrigger(t => t + 1)
     if (user?.role === 'admin') fetchCounts()
   }
