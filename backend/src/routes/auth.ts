@@ -132,8 +132,36 @@ router.get('/me', authMiddleware, async (req: Request, res: Response): Promise<v
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-// POST /auth/reset — Admin only; wipe all activity data
-router.post('/reset', authMiddleware, requireAdmin, async (_req: Request, res: Response): Promise<void> => {
+// POST /auth/users/:id/adjust-points — Admin only; manually add or deduct points
+router.post('/users/:id/adjust-points', authMiddleware, requireAdmin, async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const { delta, reason } = req.body;
+  if (typeof delta !== 'number' || delta === 0) { res.status(400).json({ error: 'delta must be a non-zero number' }); return; }
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const txId = randomUUID();
+    await client.query(
+      `INSERT INTO point_transactions (id, user_id, task_id, delta, reason, created_at) VALUES ($1,$2,NULL,$3,$4,now())`,
+      [txId, id, delta, reason || (delta > 0 ? 'manual_award' : 'manual_deduction')],
+    );
+    await client.query(`UPDATE users SET points = points + $1 WHERE id = $2`, [delta, id]);
+    // Notify the user
+    const msg = delta > 0
+      ? `⭐ Admin awarded you ${delta} point${Math.abs(delta) !== 1 ? 's' : ''}.`
+      : `📉 Admin deducted ${Math.abs(delta)} point${Math.abs(delta) !== 1 ? 's' : ''} from your account.`;
+    await client.query(`INSERT INTO notifications (id, user_id, message) VALUES ($1,$2,$3)`, [randomUUID(), id, msg]);
+    await client.query('COMMIT');
+    const updated = await pool.query('SELECT id, name, points FROM users WHERE id=$1', [id]);
+    res.json(updated.rows[0]);
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Adjust points error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally { client.release(); }
+});
+
+// POST /auth/reset — Admin only; wipe all activity datarouter.post('/reset', authMiddleware, requireAdmin, async (_req: Request, res: Response): Promise<void> => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');

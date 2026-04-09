@@ -28,6 +28,25 @@ export default function UsersPage() {
   const [resetSaving, setResetSaving] = useState(false)
   const [showSiteReset, setShowSiteReset] = useState(false)
   const [siteResetting, setSiteResetting] = useState(false)
+  const [adjustUserId, setAdjustUserId] = useState<string | null>(null)
+  const [adjustDelta, setAdjustDelta] = useState('')
+  const [adjustReason, setAdjustReason] = useState('')
+  const [adjustSaving, setAdjustSaving] = useState(false)
+
+  async function handleAdjustPoints(e: React.FormEvent) {
+    e.preventDefault()
+    if (!adjustUserId) return
+    const delta = parseFloat(adjustDelta)
+    if (isNaN(delta) || delta === 0) { alert('Enter a valid non-zero number.'); return }
+    setAdjustSaving(true)
+    try {
+      const res = await api.post(`/auth/users/${adjustUserId}/adjust-points`, { delta, reason: adjustReason || undefined })
+      setUsers(prev => prev.map(u => u.id === adjustUserId ? { ...u, points: res.data.points } : u))
+      setAdjustUserId(null); setAdjustDelta(''); setAdjustReason('')
+    } catch (err: unknown) {
+      alert((err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed.')
+    } finally { setAdjustSaving(false) }
+  }
 
   async function handleSiteReset() {
     setSiteResetting(true)
@@ -211,6 +230,10 @@ export default function UsersPage() {
                     <td style={{ padding: '0.6rem 0.75rem', fontWeight: 700, color: '#7c3aed' }}>{u.points}</td>
                     <td style={{ padding: '0.6rem 0.75rem' }}>
                       <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                        <button onClick={() => { setAdjustUserId(u.id); setAdjustDelta(''); setAdjustReason('') }}
+                          style={{ padding: '0.3rem 0.7rem', background: '#ede9fe', color: '#5b21b6', border: '1px solid #c4b5fd', borderRadius: '5px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
+                          ⭐ Points
+                        </button>
                         <button onClick={() => { setResetUserId(u.id); setNewPassword('') }}
                           style={{ padding: '0.3rem 0.7rem', background: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d', borderRadius: '5px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
                           🔑 Reset PW
@@ -250,6 +273,30 @@ export default function UsersPage() {
                 {siteResetting ? '⏳ Resetting…' : '🔄 Yes, Reset Everything'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {adjustUserId && (
+        <div style={overlay}>
+          <div style={modal}>
+            <h3 style={{ margin: '0 0 0.5rem', color: '#4c1d95' }}>⭐ Adjust Points</h3>
+            <p style={{ margin: '0 0 1rem', fontSize: '0.875rem', color: '#6b7280' }}>
+              For <strong>{users.find(u => u.id === adjustUserId)?.name}</strong> — positive to award, negative to deduct.
+            </p>
+            <form onSubmit={handleAdjustPoints} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <input type="number" step="0.5" value={adjustDelta} onChange={e => setAdjustDelta(e.target.value)}
+                placeholder="e.g. -2 or 5" required style={{ ...inputStyle, padding: '0.65rem 0.85rem' }} autoFocus />
+              <input type="text" value={adjustReason} onChange={e => setAdjustReason(e.target.value)}
+                placeholder="Reason (optional)" style={{ ...inputStyle, padding: '0.65rem 0.85rem' }} />
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button type="submit" disabled={adjustSaving} style={{ flex: 1, padding: '0.6rem', background: 'linear-gradient(135deg,#7c3aed,#4c1d95)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>
+                  {adjustSaving ? 'Saving…' : 'Apply'}
+                </button>
+                <button type="button" onClick={() => setAdjustUserId(null)} style={{ padding: '0.6rem 1rem', background: '#f3f4f6', color: '#374151', border: '1px solid #e5e7eb', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
