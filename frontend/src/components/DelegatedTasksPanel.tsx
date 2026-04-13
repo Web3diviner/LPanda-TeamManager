@@ -6,7 +6,7 @@ interface DelegatedTask {
   id: string
   title: string
   description: string
-  status: 'assigned' | 'completed' | 'missed'
+  status: 'assigned' | 'completed' | 'approved' | 'missed'
   deadline: string | null
   assigned_to: string
   assigned_to_name: string
@@ -17,7 +17,8 @@ interface DelegatedTask {
 
 const statusConfig: Record<string, { bg: string; color: string; icon: string }> = {
   assigned:  { bg: '#dbeafe', color: '#1e40af', icon: '📌' },
-  completed: { bg: '#d1fae5', color: '#065f46', icon: '✅' },
+  completed: { bg: '#fef3c7', color: '#92400e', icon: '⏳' },
+  approved:  { bg: '#d1fae5', color: '#065f46', icon: '⭐' },
   missed:    { bg: '#fee2e2', color: '#991b1b', icon: '❌' },
 }
 
@@ -111,7 +112,7 @@ export default function DelegatedTasksPanel({ refreshTrigger }: Props) {
                 ⭐ Approve & Award Points
               </button>
             )}
-            {user?.role === 'admin' && task.status !== 'completed' && (
+            {user?.role === 'admin' && (task.status === 'assigned' || task.status === 'completed') && (
               <button onClick={() => handleCancel(task.id, task.title)} style={cancelBtn}>
                 🚫 Cancel
               </button>

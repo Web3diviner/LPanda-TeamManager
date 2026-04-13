@@ -122,8 +122,10 @@ router.patch('/:id/approve', authMiddleware, requireAdmin, async (req: Request, 
         [randomUUID(), task.assigned_to, `✅ Task "${task.title}" approved, but no points (completed late).`],
       );
     }
+    // Update status to 'approved' to prevent re-approval
+    await client.query(`UPDATE delegated_tasks SET status='approved' WHERE id=$1`, [id]);
     await client.query('COMMIT');
-    res.json({ message: 'Task approved.' });
+    res.json({ message: 'Task approved and points awarded.' });
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('Approve delegated task error:', err);
