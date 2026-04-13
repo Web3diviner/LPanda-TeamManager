@@ -161,7 +161,8 @@ router.post('/users/:id/adjust-points', authMiddleware, requireAdmin, async (req
   } finally { client.release(); }
 });
 
-// POST /auth/reset — Admin only; wipe all activity datarouter.post('/reset', authMiddleware, requireAdmin, async (_req: Request, res: Response): Promise<void> => {
+// POST /auth/reset — Admin only; wipe all activity
+router.post('/reset', authMiddleware, requireAdmin, async (_req: Request, res: Response): Promise<void> => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');

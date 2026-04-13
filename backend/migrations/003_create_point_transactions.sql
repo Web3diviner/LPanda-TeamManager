@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS point_transactions (
   user_id     UUID REFERENCES users(id),
   task_id     UUID REFERENCES tasks(id),
   delta       NUMERIC(10,2) NOT NULL,   -- +3.0 or -1.5
-  reason      TEXT NOT NULL CHECK (reason IN ('completion', 'missed_deadline')),
+  reason      TEXT NOT NULL,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
