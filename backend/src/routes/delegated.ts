@@ -67,6 +67,36 @@ router.post('/', authMiddleware, requireAdmin, async (req: Request, res: Respons
   }
 });
 
+// PATCH /delegated/:id/complete — Member marks delegated task complete (no points yet)
+router.patch('/:id/complete', authMiddleware, async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const userId = req.user!.sub;
+  try {
+    const r = await pool.query('SELECT * FROM delegated_tasks WHERE id=$1', [id]);
+    if (r.rows.length === 0) { res.status(404).json({ error: 'Not found' }); return; }
+    const task = r.rows[0];
+    if (task.assigned_to !== userId) { res.status(403).json({ error: 'Not assigned to you' }); return; }
+    if (task.status === 'completed') { res.status(409).json({ error: 'Already completed' }); return; }
+    const completedAt = new Date();
+    const updated = await pool.query(
+      `UPDATE delegated_tasks SET status='completed', completed_at=$1 WHERE id=$2 RETURNING *`,
+      [completedAt, id],
+    );
+    // Notify admins that task is completed and needs approval
+    const admins = await pool.query('SELECT id FROM users WHERE role=$1', ['admin']);
+    for (const admin of admins.rows) {
+      await pool.query(
+        `INSERT INTO notifications (id, user_id, message) VALUES ($1,$2,$3)`,
+        [randomUUID(), admin.id, `✅ Delegated task "${task.title}" completed by ${req.user!.name}. Awaiting approval.`],
+      );
+    }
+    res.json(updated.rows[0]);
+  } catch (err) {
+    console.error('Complete delegated task error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // PATCH /delegated/:id/approve — Admin approves completed delegated task and awards points
 router.patch('/:id/approve', authMiddleware, requireAdmin, async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
@@ -81,13 +111,13 @@ router.patch('/:id/approve', authMiddleware, requireAdmin, async (req: Request, 
     if (task.completed_at && task.deadline && new Date(task.completed_at) < new Date(task.deadline)) {
       await PointsService.award(task.assigned_to, null, client);
       // Notify the assignee
-      await pool.query(
+      await client.query(
         `INSERT INTO notifications (id, user_id, message) VALUES ($1,$2,$3)`,
         [randomUUID(), task.assigned_to, `⭐ Points awarded for completing "${task.title}" on time!`],
       );
     } else {
       // Notify even if late
-      await pool.query(
+      await client.query(
         `INSERT INTO notifications (id, user_id, message) VALUES ($1,$2,$3)`,
         [randomUUID(), task.assigned_to, `✅ Task "${task.title}" approved, but no points (completed late).`],
       );

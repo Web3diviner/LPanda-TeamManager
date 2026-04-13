@@ -38,6 +38,16 @@ export default function DelegatedTasksPanel({ refreshTrigger }: Props) {
 
   useEffect(() => { fetchTasks() }, [refreshTrigger])
 
+  async function handleComplete(id: string) {
+    try {
+      await api.patch(`/delegated/${id}/complete`)
+      fetchTasks()
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to mark complete.'
+      alert(msg)
+    }
+  }
+
   async function handleApprove(id: string) {
     try {
       await api.patch(`/delegated/${id}/approve`)
