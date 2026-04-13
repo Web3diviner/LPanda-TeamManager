@@ -67,31 +67,36 @@ router.post('/', authMiddleware, requireAdmin, async (req: Request, res: Respons
   }
 });
 
-// PATCH /delegated/:id/complete — Member marks delegated task complete
-router.patch('/:id/complete', authMiddleware, async (req: Request, res: Response): Promise<void> => {
+// PATCH /delegated/:id/approve — Admin approves completed delegated task and awards points
+router.patch('/:id/approve', authMiddleware, requireAdmin, async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
-  const userId = req.user!.sub;
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     const r = await client.query('SELECT * FROM delegated_tasks WHERE id=$1 FOR UPDATE', [id]);
     if (r.rows.length === 0) { await client.query('ROLLBACK'); res.status(404).json({ error: 'Not found' }); return; }
     const task = r.rows[0];
-    if (task.assigned_to !== userId) { await client.query('ROLLBACK'); res.status(403).json({ error: 'Not assigned to you' }); return; }
-    if (task.status === 'completed') { await client.query('ROLLBACK'); res.status(409).json({ error: 'Already completed' }); return; }
-    const completedAt = new Date();
-    const updated = await client.query(
-      `UPDATE delegated_tasks SET status='completed', completed_at=$1 WHERE id=$2 RETURNING *`,
-      [completedAt, id],
-    );
-    if (task.deadline && completedAt < new Date(task.deadline)) {
-      await PointsService.award(userId, null, client);
+    if (task.status !== 'completed') { await client.query('ROLLBACK'); res.status(409).json({ error: 'Task not completed yet' }); return; }
+    // Award points if completed on time
+    if (task.completed_at && task.deadline && new Date(task.completed_at) < new Date(task.deadline)) {
+      await PointsService.award(task.assigned_to, null, client);
+      // Notify the assignee
+      await pool.query(
+        `INSERT INTO notifications (id, user_id, message) VALUES ($1,$2,$3)`,
+        [randomUUID(), task.assigned_to, `⭐ Points awarded for completing "${task.title}" on time!`],
+      );
+    } else {
+      // Notify even if late
+      await pool.query(
+        `INSERT INTO notifications (id, user_id, message) VALUES ($1,$2,$3)`,
+        [randomUUID(), task.assigned_to, `✅ Task "${task.title}" approved, but no points (completed late).`],
+      );
     }
     await client.query('COMMIT');
-    res.json(updated.rows[0]);
+    res.json({ message: 'Task approved.' });
   } catch (err) {
     await client.query('ROLLBACK');
-    console.error('Complete delegated task error:', err);
+    console.error('Approve delegated task error:', err);
     res.status(500).json({ error: 'Internal server error' });
   } finally {
     client.release();

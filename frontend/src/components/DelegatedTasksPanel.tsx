@@ -38,12 +38,12 @@ export default function DelegatedTasksPanel({ refreshTrigger }: Props) {
 
   useEffect(() => { fetchTasks() }, [refreshTrigger])
 
-  async function handleComplete(id: string) {
+  async function handleApprove(id: string) {
     try {
-      await api.patch(`/delegated/${id}/complete`)
+      await api.patch(`/delegated/${id}/approve`)
       fetchTasks()
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed.'
+      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to approve.'
       alert(msg)
     }
   }
@@ -96,6 +96,11 @@ export default function DelegatedTasksPanel({ refreshTrigger }: Props) {
                 ✅ Mark Complete
               </button>
             )}
+            {user?.role === 'admin' && task.status === 'completed' && (
+              <button onClick={() => handleApprove(task.id)} style={approveBtn}>
+                ⭐ Approve & Award Points
+              </button>
+            )}
             {user?.role === 'admin' && task.status !== 'completed' && (
               <button onClick={() => handleCancel(task.id, task.title)} style={cancelBtn}>
                 🚫 Cancel
@@ -120,6 +125,11 @@ const remarkBadge: React.CSSProperties = {
 const completeBtn: React.CSSProperties = {
   marginTop: '0.35rem', padding: '0.35rem 0.85rem',
   background: '#d1fae5', color: '#065f46', border: '1px solid #6ee7b7',
+  borderRadius: '6px', fontWeight: 600, fontSize: '0.78rem', cursor: 'pointer',
+}
+const approveBtn: React.CSSProperties = {
+  marginTop: '0.35rem', marginLeft: '0.5rem', padding: '0.35rem 0.85rem',
+  background: '#fef3c7', color: '#92400e', border: '1px solid #f59e0b',
   borderRadius: '6px', fontWeight: 600, fontSize: '0.78rem', cursor: 'pointer',
 }
 const cancelBtn: React.CSSProperties = {
