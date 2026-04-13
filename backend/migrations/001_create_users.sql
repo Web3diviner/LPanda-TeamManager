@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS users (
   name        TEXT NOT NULL,
   email       TEXT UNIQUE NOT NULL,
   password    TEXT NOT NULL,  -- bcrypt hash
-  role        TEXT NOT NULL CHECK (role IN ('admin', 'member')),
+  role        TEXT NOT NULL,
+  CONSTRAINT users_role_check CHECK (role IN ('admin', 'member', 'ambassador')),
   points      NUMERIC(10,2) NOT NULL DEFAULT 0,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );

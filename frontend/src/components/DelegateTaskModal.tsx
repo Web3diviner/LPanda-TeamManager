@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import api from '../api'
 
-interface User { id: string; name: string }
+interface User { id: string; name: string; role?: 'admin' | 'member' | 'ambassador' }
 
 interface Props {
   onClose: () => void
@@ -19,9 +19,9 @@ export default function DelegateTaskModal({ onClose, onDelegated }: Props) {
 
   useEffect(() => {
     api.get('/auth/users').then(res => {
-      const members = res.data.filter((u: User & { role: string }) => u.role === 'member')
-      setUsers(members)
-      if (members.length > 0) setAssignedTo(members[0].id)
+      const candidates = res.data.filter((u: User & { role: string }) => u.role === 'member' || u.role === 'ambassador')
+      setUsers(candidates)
+      if (candidates.length > 0) setAssignedTo(candidates[0].id)
     }).catch(() => setError('Failed to load users.'))
   }, [])
 

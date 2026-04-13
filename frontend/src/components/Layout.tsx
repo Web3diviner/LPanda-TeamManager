@@ -31,7 +31,7 @@ export default function Layout() {
           )}
           {!isMobile && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              {user && <span style={userBadge}>{user.role === 'admin' ? '👑' : '👤'} {user.name}</span>}
+              {user && <span style={userBadge}>{user.role === 'admin' ? '👑' : user.role === 'ambassador' ? '🤝' : '👤'} {user.name}</span>}
               <button onClick={logout} style={logoutBtn}>Logout</button>
             </div>
           )}
@@ -53,7 +53,7 @@ export default function Layout() {
               <NavLink to="/users" style={mobileLinkStyle} onClick={() => setMenuOpen(false)}>⚙️ Users</NavLink>
             )}
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: '0.75rem', marginTop: '0.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              {user && <span style={{ ...userBadge, fontSize: '0.8rem' }}>{user.role === 'admin' ? '👑' : '👤'} {user.name}</span>}
+              {user && <span style={{ ...userBadge, fontSize: '0.8rem' }}>{user.role === 'admin' ? '👑' : user.role === 'ambassador' ? '🤝' : '👤'} {user.name}</span>}
               <button onClick={logout} style={logoutBtn}>Logout</button>
             </div>
           </div>

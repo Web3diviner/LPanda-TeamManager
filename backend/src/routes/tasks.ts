@@ -31,7 +31,7 @@ router.get('/assignment-counts', authMiddleware, requireAdmin, async (_req: Requ
               COUNT(t.id) FILTER (WHERE t.status = 'pending')   AS pending
        FROM users u
        LEFT JOIN tasks t ON t.assigned_to = u.id
-       WHERE u.role = 'member'
+       WHERE u.role IN ('member', 'ambassador')
        GROUP BY u.id, u.name
        ORDER BY u.name ASC`,
     );

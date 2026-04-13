@@ -6,7 +6,7 @@ interface User {
   id: string
   name: string
   email: string
-  role: 'admin' | 'member'
+  role: 'admin' | 'member' | 'ambassador'
   role_title: string | null
   points: number
 }
@@ -16,7 +16,7 @@ export default function UsersPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [role, setRole] = useState<'admin' | 'member'>('member')
+  const [role, setRole] = useState<'admin' | 'member' | 'ambassador'>('member')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
@@ -164,8 +164,9 @@ export default function UsersPage() {
             </div>
             <div>
               <label style={labelStyle}>Role</label>
-              <select value={role} onChange={e => setRole(e.target.value as 'admin' | 'member')} style={inputStyle}>
+              <select value={role} onChange={e => setRole(e.target.value as 'admin' | 'member' | 'ambassador')} style={inputStyle}>
                 <option value="member">Member</option>
+                <option value="ambassador">Ambassador</option>
                 <option value="admin">Admin</option>
               </select>
             </div>
@@ -203,8 +204,8 @@ export default function UsersPage() {
                     <td style={{ padding: '0.6rem 0.75rem' }}>
                       <span style={{
                         padding: '0.2rem 0.6rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 700,
-                        background: u.role === 'admin' ? '#ede9fe' : '#f3f4f6',
-                        color: u.role === 'admin' ? '#6d28d9' : '#374151',
+                        background: u.role === 'admin' ? '#ede9fe' : u.role === 'ambassador' ? '#dbeafe' : '#f3f4f6',
+                        color: u.role === 'admin' ? '#6d28d9' : u.role === 'ambassador' ? '#1d4ed8' : '#374151',
                       }}>{u.role}</span>
                     </td>
                     <td style={{ padding: '0.6rem 0.75rem' }}>

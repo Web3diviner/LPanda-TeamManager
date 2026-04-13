@@ -65,7 +65,7 @@ const RegisterSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
   password: z.string().min(6),
-  role: z.enum(['admin', 'member']).default('member'),
+  role: z.enum(['admin', 'member', 'ambassador']).default('member'),
 });
 
 // POST /auth/register — Admin only; create a new user account

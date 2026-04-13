@@ -11,7 +11,7 @@ const mockQuery = pool.query as jest.Mock;
 
 const JWT_SECRET = process.env.JWT_SECRET ?? 'dev-secret-change-in-production';
 
-function makeToken(role: 'admin' | 'member' = 'member', sub = 'user-uuid-1') {
+function makeToken(role: 'admin' | 'member' | 'ambassador' = 'member', sub = 'user-uuid-1') {
   return jwt.sign({ sub, role, name: 'Alice' }, JWT_SECRET, { expiresIn: '1h' });
 }
 

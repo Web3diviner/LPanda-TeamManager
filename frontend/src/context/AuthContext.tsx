@@ -5,7 +5,7 @@ export interface User {
   id: string
   name: string
   email: string
-  role: 'admin' | 'member'
+  role: 'admin' | 'member' | 'ambassador'
   avatar_url?: string | null
 }
 

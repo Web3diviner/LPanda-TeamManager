@@ -5,7 +5,7 @@ interface LeaderboardUser {
   id: string
   name: string
   points: number
-  role: 'admin' | 'member'
+  role: 'admin' | 'member' | 'ambassador'
 }
 
 interface Props {
@@ -23,9 +23,9 @@ export default function TaskAssignModal({ taskId, onClose, onAssigned }: Props) 
 
   useEffect(() => {
     api.get('/auth/users').then(res => {
-      const members = (res.data as LeaderboardUser[]).filter((user) => user.role === 'member')
-      setUsers(members)
-      if (members.length > 0) setAssignedTo(members[0].id)
+      const candidates = (res.data as LeaderboardUser[]).filter((user) => user.role === 'member' || user.role === 'ambassador')
+      setUsers(candidates)
+      if (candidates.length > 0) setAssignedTo(candidates[0].id)
     }).catch(() => setError('Failed to load members.'))
   }, [])
 

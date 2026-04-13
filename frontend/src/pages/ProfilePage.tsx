@@ -97,7 +97,7 @@ export default function ProfilePage() {
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 800, fontSize: '1.3rem', color: '#1a1035' }}>{user?.name}</div>
             <div style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '0.2rem' }}>{user?.email}</div>
-            <span style={roleBadge}>{user?.role === 'admin' ? '👑 Admin' : '👤 Member'}</span>
+            <span style={roleBadge}>{user?.role === 'admin' ? '👑 Admin' : user?.role === 'ambassador' ? '🤝 Ambassador' : '👤 Member'}</span>
           </div>
           <div style={pointsCard}>
             <div style={{ fontSize: '0.75rem', color: '#7c3aed', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Points</div>
