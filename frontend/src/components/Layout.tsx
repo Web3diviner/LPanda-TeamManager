@@ -21,9 +21,9 @@ export default function Layout() {
           {!isMobile && (
             <div style={linksStyle}>
               <NavLink to={user?.role === 'ambassador' ? '/ambassador' : '/dashboard'} style={linkStyle}>📋 Dashboard</NavLink>
-              <NavLink to="/leaderboard" style={linkStyle}>🏆 Leaderboard</NavLink>
-              <NavLink to="/recap" style={linkStyle}>📊 Recap</NavLink>
-              <NavLink to="/schedule" style={linkStyle}>📅 Schedule</NavLink>
+              <NavLink to={user?.role === 'ambassador' ? '/ambassador-leaderboard' : '/leaderboard'} style={linkStyle}>🏆 Leaderboard</NavLink>
+              <NavLink to={user?.role === 'ambassador' ? '/ambassador-recap' : '/recap'} style={linkStyle}>📊 Recap</NavLink>
+              <NavLink to={user?.role === 'ambassador' ? '/ambassador-schedule' : '/schedule'} style={linkStyle}>📅 Schedule</NavLink>
               <NavLink to="/meeting" style={linkStyle}>🎥 Meeting</NavLink>
               <NavLink to="/profile" style={linkStyle}>👤 Profile</NavLink>
               {user?.role === 'admin' && <NavLink to="/users" style={linkStyle}>⚙️ Users</NavLink>}
@@ -44,9 +44,9 @@ export default function Layout() {
         {isMobile && menuOpen && (
           <div style={mobileMenuStyle}>
             <NavLink to={user?.role === 'ambassador' ? '/ambassador' : '/dashboard'} style={mobileLinkStyle} onClick={() => setMenuOpen(false)}>📋 Dashboard</NavLink>
-            <NavLink to="/leaderboard" style={mobileLinkStyle} onClick={() => setMenuOpen(false)}>🏆 Leaderboard</NavLink>
-            <NavLink to="/recap" style={mobileLinkStyle} onClick={() => setMenuOpen(false)}>📊 Recap</NavLink>
-            <NavLink to="/schedule" style={mobileLinkStyle} onClick={() => setMenuOpen(false)}>📅 Schedule</NavLink>
+            <NavLink to={user?.role === 'ambassador' ? '/ambassador-leaderboard' : '/leaderboard'} style={mobileLinkStyle} onClick={() => setMenuOpen(false)}>🏆 Leaderboard</NavLink>
+            <NavLink to={user?.role === 'ambassador' ? '/ambassador-recap' : '/recap'} style={mobileLinkStyle} onClick={() => setMenuOpen(false)}>📊 Recap</NavLink>
+            <NavLink to={user?.role === 'ambassador' ? '/ambassador-schedule' : '/schedule'} style={mobileLinkStyle} onClick={() => setMenuOpen(false)}>📅 Schedule</NavLink>
             <NavLink to="/meeting" style={mobileLinkStyle} onClick={() => setMenuOpen(false)}>🎥 Meeting</NavLink>
             <NavLink to="/profile" style={mobileLinkStyle} onClick={() => setMenuOpen(false)}>👤 Profile</NavLink>
             {user?.role === 'admin' && (

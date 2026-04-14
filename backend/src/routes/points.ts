@@ -53,5 +53,20 @@ router.get('/leaderboard', authMiddleware, async (_req: Request, res: Response):
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+// GET /points/ambassador-leaderboard — ambassadors only ordered by points DESC, name ASC
+router.get('/ambassador-leaderboard', authMiddleware, async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await pool.query(
+      `SELECT id, name, points
+       FROM users
+       WHERE role = 'ambassador'
+       ORDER BY points DESC, name ASC`,
+    );
 
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Get ambassador leaderboard error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 export default router;
