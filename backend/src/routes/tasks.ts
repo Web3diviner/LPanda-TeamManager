@@ -66,10 +66,9 @@ router.get('/', authMiddleware, async (req: Request, res: Response): Promise<voi
                 t.assigned_to, au.name AS assigned_to_name
          FROM tasks t
          LEFT JOIN users su ON su.id = t.submitted_by
-         LEFT JOIN users au ON au.id = t.assigned_to
+         INNER JOIN users au ON au.id = t.assigned_to
          WHERE au.role = 'ambassador'
          ORDER BY t.submitted_at DESC`,
-        [user.sub],
       );
     } else {
       result = await pool.query(
