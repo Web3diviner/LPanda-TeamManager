@@ -10,7 +10,7 @@ const router = Router();
 const DelegateSchema = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
-  assigned_to: z.string().uuid(),
+  assigned_to: z.array(z.string().uuid()).min(1),
   deadline: z.string().min(1),
   admin_remark: z.string().optional().nullable(),
 });
@@ -47,23 +47,32 @@ router.post('/', authMiddleware, requireAdmin, async (req: Request, res: Respons
   }
   const { title, description, assigned_to, deadline, admin_remark } = parsed.data;
   const createdBy = req.user!.sub;
-  const id = randomUUID();
+  const client = await pool.connect();
   try {
-    const result = await pool.query(
-      `INSERT INTO delegated_tasks (id, title, description, assigned_to, created_by, deadline, admin_remark)
-       VALUES ($1,$2,$3,$4,$5,$6,$7)
-       RETURNING *`,
-      [id, title, description, assigned_to, createdBy, deadline, admin_remark ?? null],
-    );
-    // Notify the assignee
-    await pool.query(
-      `INSERT INTO notifications (id, user_id, message) VALUES ($1,$2,$3)`,
-      [randomUUID(), assigned_to, `🎯 New task delegated to you: "${title}"`],
-    );
-    res.status(201).json(result.rows[0]);
+    await client.query('BEGIN');
+    const createdTasks = [] as any[];
+    for (const assignee of assigned_to) {
+      const id = randomUUID();
+      const result = await client.query(
+        `INSERT INTO delegated_tasks (id, title, description, assigned_to, created_by, deadline, admin_remark)
+         VALUES ($1,$2,$3,$4,$5,$6,$7)
+         RETURNING *`,
+        [id, title, description, assignee, createdBy, deadline, admin_remark ?? null],
+      );
+      await client.query(
+        `INSERT INTO notifications (id, user_id, message) VALUES ($1,$2,$3)`,
+        [randomUUID(), assignee, `🎯 New task delegated to you: "${title}"`],
+      );
+      createdTasks.push(result.rows[0]);
+    }
+    await client.query('COMMIT');
+    res.status(201).json(createdTasks);
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error('Delegate task error:', err);
     res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    client.release();
   }
 });
 

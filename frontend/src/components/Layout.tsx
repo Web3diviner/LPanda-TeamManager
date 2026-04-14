@@ -20,7 +20,7 @@ export default function Layout() {
           </div>
           {!isMobile && (
             <div style={linksStyle}>
-              <NavLink to="/dashboard" style={linkStyle}>📋 Dashboard</NavLink>
+              <NavLink to={user?.role === 'ambassador' ? '/ambassador' : '/dashboard'} style={linkStyle}>📋 Dashboard</NavLink>
               <NavLink to="/leaderboard" style={linkStyle}>🏆 Leaderboard</NavLink>
               <NavLink to="/recap" style={linkStyle}>📊 Recap</NavLink>
               <NavLink to="/schedule" style={linkStyle}>📅 Schedule</NavLink>
@@ -43,7 +43,7 @@ export default function Layout() {
         </div>
         {isMobile && menuOpen && (
           <div style={mobileMenuStyle}>
-            <NavLink to="/dashboard" style={mobileLinkStyle} onClick={() => setMenuOpen(false)}>📋 Dashboard</NavLink>
+            <NavLink to={user?.role === 'ambassador' ? '/ambassador' : '/dashboard'} style={mobileLinkStyle} onClick={() => setMenuOpen(false)}>📋 Dashboard</NavLink>
             <NavLink to="/leaderboard" style={mobileLinkStyle} onClick={() => setMenuOpen(false)}>🏆 Leaderboard</NavLink>
             <NavLink to="/recap" style={mobileLinkStyle} onClick={() => setMenuOpen(false)}>📊 Recap</NavLink>
             <NavLink to="/schedule" style={mobileLinkStyle} onClick={() => setMenuOpen(false)}>📅 Schedule</NavLink>

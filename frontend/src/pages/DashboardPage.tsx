@@ -79,7 +79,7 @@ export default function DashboardPage() {
             {isAdmin ? ' — manage your team from here' : ' — track your progress'}
           </p>
         </div>
-        {isAdmin && (
+        {(user?.role === 'admin') && (
           <button onClick={() => setShowDelegate(true)} style={delegateBtn}>
             <span>🎯</span> Delegate Task
           </button>

@@ -1,15 +1,23 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
+import AmbassadorPage from './pages/AmbassadorPage'
 import LeaderboardPage from './pages/LeaderboardPage'
 import WeeklyRecapPage from './pages/WeeklyRecapPage'
 import ProfilePage from './pages/ProfilePage'
 import UsersPage from './pages/UsersPage'
 import SchedulePage from './pages/SchedulePage'
 import MeetingRoomPage from './pages/MeetingRoomPage'
+
+function HomeRedirect() {
+  const { user } = useAuth()
+  if (!user) return <Navigate to="/login" replace />
+  if (user.role === 'ambassador') return <Navigate to="/ambassador" replace />
+  return <Navigate to="/dashboard" replace />
+}
 
 export default function App() {
   return (
@@ -20,6 +28,7 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
               <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/ambassador" element={<AmbassadorPage />} />
               <Route path="/leaderboard" element={<LeaderboardPage />} />
               <Route path="/recap" element={<WeeklyRecapPage />} />
               <Route path="/profile" element={<ProfilePage />} />
@@ -28,8 +37,8 @@ export default function App() {
               <Route path="/meeting" element={<MeetingRoomPage />} />
             </Route>
           </Route>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/" element={<HomeRedirect />} />
+          <Route path="*" element={<HomeRedirect />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

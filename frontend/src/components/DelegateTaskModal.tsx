@@ -12,7 +12,7 @@ export default function DelegateTaskModal({ onClose, onDelegated }: Props) {
   const [users, setUsers] = useState<User[]>([])
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [assignedTo, setAssignedTo] = useState('')
+  const [assignedTo, setAssignedTo] = useState<string[]>([])
   const [deadline, setDeadline] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -21,14 +21,14 @@ export default function DelegateTaskModal({ onClose, onDelegated }: Props) {
     api.get('/auth/users').then(res => {
       const candidates = res.data.filter((u: User & { role: string }) => u.role === 'member' || u.role === 'ambassador')
       setUsers(candidates)
-      if (candidates.length > 0) setAssignedTo(candidates[0].id)
+      if (candidates.length > 0) setAssignedTo([candidates[0].id])
     }).catch(() => setError('Failed to load users.'))
   }, [])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
-    if (!title.trim() || !description.trim() || !deadline) {
+    if (!title.trim() || !description.trim() || !deadline || assignedTo.length === 0) {
       setError('All fields are required.')
       return
     }
@@ -65,9 +65,18 @@ export default function DelegateTaskModal({ onClose, onDelegated }: Props) {
             </div>
             <div>
               <label style={label}>Assign To</label>
-              <select value={assignedTo} onChange={e => setAssignedTo(e.target.value)} style={input}>
+              <select
+                multiple
+                value={assignedTo}
+                onChange={e => setAssignedTo(Array.from(e.target.selectedOptions, option => option.value))}
+                style={input}
+                size={Math.min(6, users.length || 3)}
+              >
                 {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
               </select>
+              <div style={{ marginTop: '0.35rem', fontSize: '0.78rem', color: '#6b7280' }}>
+                Hold Ctrl/Cmd to select multiple users.
+              </div>
             </div>
             <div>
               <label style={label}>Deadline</label>
