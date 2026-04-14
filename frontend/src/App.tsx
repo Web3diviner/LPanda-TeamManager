@@ -15,7 +15,7 @@ import MeetingRoomPage from './pages/MeetingRoomPage'
 function HomeRedirect() {
   const { user } = useAuth()
   if (!user) return <Navigate to="/login" replace />
-  if (user.role === 'ambassador') return <Navigate to="/ambassador" replace />
+  if (user.role === 'ambassador' || user.role === 'admin') return <Navigate to="/ambassador" replace />
   return <Navigate to="/dashboard" replace />
 }
 

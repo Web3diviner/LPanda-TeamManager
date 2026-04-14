@@ -58,6 +58,19 @@ router.get('/', authMiddleware, async (req: Request, res: Response): Promise<voi
          LEFT JOIN users au ON au.id = t.assigned_to
          ORDER BY t.submitted_at DESC`,
       );
+    } else if (user.role === 'ambassador') {
+      result = await pool.query(
+        `SELECT t.id, t.description, t.status, t.deadline, t.submitted_at, t.completed_at,
+                t.screenshot_url, t.task_link,
+                t.submitted_by, su.name AS submitted_by_name,
+                t.assigned_to, au.name AS assigned_to_name
+         FROM tasks t
+         LEFT JOIN users su ON su.id = t.submitted_by
+         LEFT JOIN users au ON au.id = t.assigned_to
+         WHERE au.role = 'ambassador'
+         ORDER BY t.submitted_at DESC`,
+        [user.sub],
+      );
     } else {
       result = await pool.query(
         `SELECT t.id, t.description, t.status, t.deadline, t.submitted_at, t.completed_at,
