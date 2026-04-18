@@ -2,7 +2,7 @@ services:
   - type: web
     name: lpanda-teammanager
     runtime: node
-    buildCommand: cd backend && npm install
+    buildCommand: cd backend && npm ci
     startCommand: cd backend && npm start
     envVars:
       - key: NODE_ENV
