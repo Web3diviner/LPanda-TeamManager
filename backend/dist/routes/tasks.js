@@ -61,10 +61,10 @@ router.get('/', auth_1.authMiddleware, async (req, res) => {
                 t.submitted_by, su.name AS submitted_by_name,
                 t.assigned_to, au.name AS assigned_to_name
          FROM tasks t
-         LEFT JOIN users su ON su.id = t.submitted_by
+         INNER JOIN users su ON su.id = t.submitted_by
          LEFT JOIN users au ON au.id = t.assigned_to
-         WHERE au.role = 'ambassador'
-         ORDER BY t.submitted_at DESC`, [user.sub]);
+         WHERE su.role = 'ambassador'
+         ORDER BY t.submitted_at DESC`);
         }
         else {
             result = await db_1.default.query(`SELECT t.id, t.description, t.status, t.deadline, t.submitted_at, t.completed_at,
@@ -99,6 +99,14 @@ router.post('/', auth_1.authMiddleware, async (req, res) => {
     const submittedBy = req.user.sub;
     const id = (0, crypto_1.randomUUID)();
     try {
+        // Check for duplicate task_link
+        if (task_link) {
+            const existing = await db_1.default.query('SELECT id FROM tasks WHERE submitted_by = $1 AND task_link = $2', [submittedBy, task_link]);
+            if (existing.rows.length > 0) {
+                res.status(409).json({ error: 'You have already submitted a task with this link.' });
+                return;
+            }
+        }
         const result = await db_1.default.query(`INSERT INTO tasks (id, description, submitted_by, status, submitted_at, screenshot_url, task_link)
        VALUES ($1, $2, $3, 'pending', now(), $4, $5)
        RETURNING id, description, submitted_by, status, submitted_at, screenshot_url, task_link`, [id, description, submittedBy, screenshot_url ?? null, task_link || null]);

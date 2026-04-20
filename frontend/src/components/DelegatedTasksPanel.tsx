@@ -10,6 +10,7 @@ interface DelegatedTask {
   deadline: string | null
   assigned_to: string
   assigned_to_name: string
+  assigned_to_role: 'admin' | 'member' | 'ambassador'
   created_by_name: string
   admin_remark: string | null
   created_at: string

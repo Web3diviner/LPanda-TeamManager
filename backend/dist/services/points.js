@@ -7,7 +7,10 @@ function autoRemark(delta) {
 }
 exports.PointsService = {
     async award(userId, taskId, client) {
-        const delta = 3.0;
+        // Get user role
+        const userResult = await client.query('SELECT role FROM users WHERE id = $1', [userId]);
+        const role = userResult.rows[0]?.role;
+        const delta = role === 'ambassador' ? 138.6 : 3.0;
         const id = (0, crypto_1.randomUUID)();
         await client.query(`INSERT INTO point_transactions (id, user_id, task_id, delta, reason, created_at)
        VALUES ($1, $2, $3, $4, $5, now())`, [id, userId, taskId, delta, 'completion']);

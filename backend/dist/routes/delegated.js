@@ -21,15 +21,28 @@ const RemarkSchema = zod_1.z.object({
     admin_remark: zod_1.z.string().min(1),
 });
 // GET /delegated — All delegated tasks (visible to everyone)
-router.get('/', auth_1.authMiddleware, async (_req, res) => {
+router.get('/', auth_1.authMiddleware, async (req, res) => {
+    const user = req.user;
     try {
-        const result = await db_1.default.query(`SELECT d.id, d.title, d.description, d.status, d.deadline, d.created_at, d.completed_at, d.admin_remark,
-              d.assigned_to, au.name AS assigned_to_name,
-              d.created_by, cu.name AS created_by_name
-       FROM delegated_tasks d
-       LEFT JOIN users au ON au.id = d.assigned_to
-       LEFT JOIN users cu ON cu.id = d.created_by
-       ORDER BY d.created_at DESC`);
+        let query = `
+      SELECT d.id, d.title, d.description, d.status, d.deadline, d.created_at, d.completed_at, d.admin_remark,
+             d.assigned_to, au.name AS assigned_to_name, au.role AS assigned_to_role,
+             d.created_by, cu.name AS created_by_name
+      FROM delegated_tasks d
+      LEFT JOIN users au ON au.id = d.assigned_to
+      LEFT JOIN users cu ON cu.id = d.created_by
+      ORDER BY d.created_at DESC
+    `;
+        let result;
+        if (user.role === 'admin') {
+            result = await db_1.default.query(query);
+        }
+        else if (user.role === 'ambassador') {
+            result = await db_1.default.query(query + ' WHERE au.role = $1', ['ambassador']);
+        }
+        else {
+            result = await db_1.default.query(query + ' WHERE d.assigned_to = $1', [user.sub]);
+        }
         res.json(result.rows);
     }
     catch (err) {

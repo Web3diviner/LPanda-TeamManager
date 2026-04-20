@@ -20,17 +20,26 @@ const RemarkSchema = z.object({
 });
 
 // GET /delegated — All delegated tasks (visible to everyone)
-router.get('/', authMiddleware, async (_req: Request, res: Response): Promise<void> => {
+router.get('/', authMiddleware, async (req: Request, res: Response): Promise<void> => {
+  const user = req.user!;
   try {
-    const result = await pool.query(
-      `SELECT d.id, d.title, d.description, d.status, d.deadline, d.created_at, d.completed_at, d.admin_remark,
-              d.assigned_to, au.name AS assigned_to_name,
-              d.created_by, cu.name AS created_by_name
-       FROM delegated_tasks d
-       LEFT JOIN users au ON au.id = d.assigned_to
-       LEFT JOIN users cu ON cu.id = d.created_by
-       ORDER BY d.created_at DESC`,
-    );
+    let query = `
+      SELECT d.id, d.title, d.description, d.status, d.deadline, d.created_at, d.completed_at, d.admin_remark,
+             d.assigned_to, au.name AS assigned_to_name, au.role AS assigned_to_role,
+             d.created_by, cu.name AS created_by_name
+      FROM delegated_tasks d
+      LEFT JOIN users au ON au.id = d.assigned_to
+      LEFT JOIN users cu ON cu.id = d.created_by
+      ORDER BY d.created_at DESC
+    `;
+    let result;
+    if (user.role === 'admin') {
+      result = await pool.query(query);
+    } else if (user.role === 'ambassador') {
+      result = await pool.query(query + ' WHERE au.role = $1', ['ambassador']);
+    } else {
+      result = await pool.query(query + ' WHERE d.assigned_to = $1', [user.sub]);
+    }
     res.json(result.rows);
   } catch (err) {
     console.error('Get delegated tasks error:', err);

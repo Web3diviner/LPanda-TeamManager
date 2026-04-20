@@ -7,7 +7,10 @@ function autoRemark(delta: number): string {
 
 export const PointsService = {
   async award(userId: string, taskId: string | null, client: PoolClient): Promise<void> {
-    const delta = 3.0;
+    // Get user role
+    const userResult = await client.query('SELECT role FROM users WHERE id = $1', [userId]);
+    const role = userResult.rows[0]?.role;
+    const delta = role === 'ambassador' ? 138.6 : 3.0;
     const id = randomUUID();
     await client.query(
       `INSERT INTO point_transactions (id, user_id, task_id, delta, reason, created_at)

@@ -53,4 +53,54 @@ router.get('/weekly', auth_1.authMiddleware, async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+// GET /recap/ambassador-weekly — aggregate point_transactions from the past 7 days for ambassadors only
+router.get('/ambassador-weekly', auth_1.authMiddleware, async (req, res) => {
+    const user = req.user;
+    try {
+        // Overall totals for ambassadors for the past 7 days
+        const totalsResult = await db_1.default.query(`SELECT
+         COUNT(*) FILTER (WHERE pt.delta > 0) AS "totalCompleted",
+         COALESCE(SUM(pt.delta) FILTER (WHERE pt.delta > 0), 0) AS "totalAwarded",
+         COALESCE(ABS(SUM(pt.delta) FILTER (WHERE pt.delta < 0)), 0) AS "totalDeducted"
+       FROM point_transactions pt
+       JOIN users u ON u.id = pt.user_id
+       WHERE pt.created_at >= now() - INTERVAL '7 days'
+         AND u.role = 'ambassador'`);
+        const totals = totalsResult.rows[0];
+        // Per-ambassador breakdown joined with user names
+        let perMemberResult;
+        if (user.role === 'admin') {
+            perMemberResult = await db_1.default.query(`SELECT pt.user_id AS "userId", u.name, COALESCE(SUM(pt.delta), 0) AS "netChange"
+         FROM point_transactions pt
+         JOIN users u ON u.id = pt.user_id
+         WHERE pt.created_at >= now() - INTERVAL '7 days'
+           AND u.role = 'ambassador'
+         GROUP BY pt.user_id, u.name
+         ORDER BY u.name ASC`);
+        }
+        else {
+            perMemberResult = await db_1.default.query(`SELECT pt.user_id AS "userId", u.name, COALESCE(SUM(pt.delta), 0) AS "netChange"
+         FROM point_transactions pt
+         JOIN users u ON u.id = pt.user_id
+         WHERE pt.created_at >= now() - INTERVAL '7 days'
+           AND u.role = 'ambassador'
+           AND pt.user_id = $1
+         GROUP BY pt.user_id, u.name`, [user.sub]);
+        }
+        res.json({
+            totalCompleted: Number(totals.totalCompleted),
+            totalAwarded: Number(totals.totalAwarded),
+            totalDeducted: Number(totals.totalDeducted),
+            perMember: perMemberResult.rows.map((r) => ({
+                userId: r.userId,
+                name: r.name,
+                netChange: Number(r.netChange),
+            })),
+        });
+    }
+    catch (err) {
+        console.error('Ambassador weekly recap error:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 exports.default = router;

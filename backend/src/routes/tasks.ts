@@ -65,9 +65,9 @@ router.get('/', authMiddleware, async (req: Request, res: Response): Promise<voi
                 t.submitted_by, su.name AS submitted_by_name,
                 t.assigned_to, au.name AS assigned_to_name
          FROM tasks t
-         LEFT JOIN users su ON su.id = t.submitted_by
-         INNER JOIN users au ON au.id = t.assigned_to
-         WHERE au.role = 'ambassador'
+         INNER JOIN users su ON su.id = t.submitted_by
+         LEFT JOIN users au ON au.id = t.assigned_to
+         WHERE su.role = 'ambassador'
          ORDER BY t.submitted_at DESC`,
       );
     } else {
@@ -106,6 +106,17 @@ router.post('/', authMiddleware, async (req: Request, res: Response): Promise<vo
   const submittedBy = req.user!.sub;
   const id = randomUUID();
   try {
+    // Check for duplicate task_link
+    if (task_link) {
+      const existing = await pool.query(
+        'SELECT id FROM tasks WHERE submitted_by = $1 AND task_link = $2',
+        [submittedBy, task_link]
+      );
+      if (existing.rows.length > 0) {
+        res.status(409).json({ error: 'You have already submitted a task with this link.' });
+        return;
+      }
+    }
     const result = await pool.query(
       `INSERT INTO tasks (id, description, submitted_by, status, submitted_at, screenshot_url, task_link)
        VALUES ($1, $2, $3, 'pending', now(), $4, $5)

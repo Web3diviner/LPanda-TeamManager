@@ -32,6 +32,10 @@ export default function UsersPage() {
   const [adjustDelta, setAdjustDelta] = useState('')
   const [adjustReason, setAdjustReason] = useState('')
   const [adjustSaving, setAdjustSaving] = useState(false)
+  const [delegateTitle, setDelegateTitle] = useState('')
+  const [delegateDescription, setDelegateDescription] = useState('')
+  const [delegateDeadline, setDelegateDeadline] = useState('')
+  const [delegateLoading, setDelegateLoading] = useState(false)
 
   async function handleAdjustPoints(e: React.FormEvent) {
     e.preventDefault()
@@ -46,6 +50,33 @@ export default function UsersPage() {
     } catch (err: unknown) {
       alert((err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed.')
     } finally { setAdjustSaving(false) }
+  }
+
+  async function handleDelegateToAmbassadors(e: React.FormEvent) {
+    e.preventDefault()
+    if (!delegateTitle.trim() || !delegateDescription.trim() || !delegateDeadline) {
+      alert('All fields are required.')
+      return
+    }
+    setDelegateLoading(true)
+    try {
+      const ambassadors = users.filter(u => u.role === 'ambassador')
+      if (ambassadors.length === 0) {
+        alert('No ambassadors found.')
+        return
+      }
+      const assignedTo = ambassadors.map(u => u.id)
+      await api.post('/delegated', { title: delegateTitle, description: delegateDescription, assigned_to: assignedTo, deadline: delegateDeadline })
+      setDelegateTitle('')
+      setDelegateDescription('')
+      setDelegateDeadline('')
+      alert('Task delegated to all ambassadors successfully.')
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to delegate task.'
+      alert(msg)
+    } finally {
+      setDelegateLoading(false)
+    }
   }
 
   async function handleSiteReset() {
@@ -251,6 +282,28 @@ export default function UsersPage() {
             </table>
             </div>
           )}
+        </div>
+
+        {/* Delegate Task to All Ambassadors */}
+        <div style={{ background: '#fff', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e5e7eb', marginTop: '2rem' }}>
+          <h3 style={{ margin: '0 0 1rem', color: '#1e1b4b' }}>📋 Delegate Task to All Ambassadors</h3>
+          <form onSubmit={handleDelegateToAmbassadors} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div>
+              <label style={labelStyle}>Title</label>
+              <input type="text" value={delegateTitle} onChange={e => setDelegateTitle(e.target.value)} required style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>Description</label>
+              <textarea value={delegateDescription} onChange={e => setDelegateDescription(e.target.value)} required style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }} />
+            </div>
+            <div>
+              <label style={labelStyle}>Deadline</label>
+              <input type="datetime-local" value={delegateDeadline} onChange={e => setDelegateDeadline(e.target.value)} required style={inputStyle} />
+            </div>
+            <button type="submit" disabled={delegateLoading} style={{ padding: '0.75rem', background: 'linear-gradient(135deg,#7c3aed,#4c1d95)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>
+              {delegateLoading ? 'Delegating…' : 'Delegate to All Ambassadors'}
+            </button>
+          </form>
         </div>
       </div>
 
