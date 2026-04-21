@@ -10,7 +10,7 @@ import { randomUUID } from 'crypto';
 import pool from './db';
 
 const name = process.env.AMBASSADOR_ADMIN_NAME ?? 'Ambassador Admin';
-const email = process.env.AMBASSADOR_ADMIN_EMAIL ?? 'ambassador-admin@example.com';
+const email = process.env.AMBASSADOR_ADMIN_EMAIL ?? 'ambassador@gmail.com';
 const password = process.env.AMBASSADOR_ADMIN_PASSWORD ?? 'ambassadoradmin123';
 
 async function seed() {
