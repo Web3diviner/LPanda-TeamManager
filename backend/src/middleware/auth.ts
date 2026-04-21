@@ -31,3 +31,11 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction): v
   }
   next();
 }
+
+export function requireAmbassadorAdmin(req: Request, res: Response, next: NextFunction): void {
+  if (req.user?.role !== 'ambassador_admin' && req.user?.role !== 'admin') {
+    res.status(403).json({ error: 'Ambassador admin access required' });
+    return;
+  }
+  next();
+}

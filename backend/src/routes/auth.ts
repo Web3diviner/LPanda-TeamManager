@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+﻿import { Router, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
@@ -65,10 +65,10 @@ const RegisterSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
   password: z.string().min(6),
-  role: z.enum(['admin', 'member', 'ambassador']).default('member'),
+  role: z.enum(['admin', 'member', 'ambassador', 'ambassador_admin']).default('member'),
 });
 
-// POST /auth/register — Admin only; create a new user account
+// POST /auth/register â€” Admin only; create a new user account
 router.post('/register', authMiddleware, requireAdmin, async (req: Request, res: Response): Promise<void> => {
   const parsed = RegisterSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -102,7 +102,7 @@ router.post('/register', authMiddleware, requireAdmin, async (req: Request, res:
   }
 });
 
-// PATCH /auth/profile — update own avatar
+// PATCH /auth/profile â€” update own avatar
 router.patch('/profile', authMiddleware, async (req: Request, res: Response): Promise<void> => {
   const { avatar_url } = req.body;
   if (typeof avatar_url !== 'string') { res.status(400).json({ error: 'avatar_url must be a string' }); return; }
@@ -118,7 +118,7 @@ router.patch('/profile', authMiddleware, async (req: Request, res: Response): Pr
   }
 });
 
-// GET /auth/me — get own profile including avatar
+// GET /auth/me â€” get own profile including avatar
 router.get('/me', authMiddleware, async (req: Request, res: Response): Promise<void> => {
   try {
     const result = await pool.query(
@@ -132,7 +132,7 @@ router.get('/me', authMiddleware, async (req: Request, res: Response): Promise<v
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-// POST /auth/users/:id/adjust-points — Admin only; manually add or deduct points
+// POST /auth/users/:id/adjust-points â€” Admin only; manually add or deduct points
 router.post('/users/:id/adjust-points', authMiddleware, requireAdmin, async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const { delta, reason } = req.body;
@@ -148,8 +148,8 @@ router.post('/users/:id/adjust-points', authMiddleware, requireAdmin, async (req
     await client.query(`UPDATE users SET points = points + $1 WHERE id = $2`, [delta, id]);
     // Notify the user
     const msg = delta > 0
-      ? `⭐ Admin awarded you ${delta} point${Math.abs(delta) !== 1 ? 's' : ''}.`
-      : `📉 Admin deducted ${Math.abs(delta)} point${Math.abs(delta) !== 1 ? 's' : ''} from your account.`;
+      ? `â­ Admin awarded you ${delta} point${Math.abs(delta) !== 1 ? 's' : ''}.`
+      : `ðŸ“‰ Admin deducted ${Math.abs(delta)} point${Math.abs(delta) !== 1 ? 's' : ''} from your account.`;
     await client.query(`INSERT INTO notifications (id, user_id, message) VALUES ($1,$2,$3)`, [randomUUID(), id, msg]);
     await client.query('COMMIT');
     const updated = await pool.query('SELECT id, name, points FROM users WHERE id=$1', [id]);
@@ -161,7 +161,7 @@ router.post('/users/:id/adjust-points', authMiddleware, requireAdmin, async (req
   } finally { client.release(); }
 });
 
-// POST /auth/reset — Admin only; wipe all activity
+// POST /auth/reset â€” Admin only; wipe all activity
 router.post('/reset', authMiddleware, requireAdmin, async (_req: Request, res: Response): Promise<void> => {
   const client = await pool.connect();
   try {
@@ -197,7 +197,7 @@ router.get('/users', authMiddleware, requireAdmin, async (_req: Request, res: Re
   }
 });
 
-// PATCH /auth/users/:id — Admin only; update role_title
+// PATCH /auth/users/:id â€” Admin only; update role_title
 router.patch('/users/:id', authMiddleware, requireAdmin, async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const { role_title } = req.body;
@@ -218,7 +218,7 @@ router.patch('/users/:id', authMiddleware, requireAdmin, async (req: Request, re
   }
 });
 
-// PATCH /auth/users/:id/password — Admin only; reset a user's password
+// PATCH /auth/users/:id/password â€” Admin only; reset a user's password
 router.patch('/users/:id/password', authMiddleware, requireAdmin, async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const { password } = req.body;
@@ -272,3 +272,4 @@ router.delete('/users/:id', authMiddleware, requireAdmin, async (req: Request, r
 });
 
 export default router;
+

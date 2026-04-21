@@ -85,28 +85,30 @@ export default function AmbassadorPage() {
 }
 
 const pageHeader: React.CSSProperties = {
-  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-  marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid #e5e7eb',
+  marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
 }
 const grid: React.CSSProperties = {
-  display: 'grid', gap: '1.5rem', alignItems: 'start',
+  display: 'grid', gap: '1.75rem', alignItems: 'start',
 }
 const mainCol: React.CSSProperties = {
-  display: 'flex', flexDirection: 'column', gap: '1.5rem',
+  display: 'flex', flexDirection: 'column', gap: '1.75rem',
 }
 const sidebar: React.CSSProperties = {
-  display: 'flex', flexDirection: 'column', gap: '1.5rem',
+  display: 'flex', flexDirection: 'column', gap: '1.75rem',
 }
 const card: React.CSSProperties = {
-  background: '#fff', borderRadius: '12px', padding: '1.5rem',
-  border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+  background: '#fff', borderRadius: '16px', padding: '1.75rem',
+  border: '1px solid #ede9fe', boxShadow: '0 2px 16px rgba(124,58,237,0.08)',
+  transition: 'box-shadow 0.2s ease',
 }
 const cardTitle: React.CSSProperties = {
-  margin: '0 0 1rem 0', fontSize: '1.125rem', fontWeight: 600, color: '#1f2937',
+  margin: '0 0 1.25rem 0', fontSize: '1rem', fontWeight: 700, color: '#4c1d95', letterSpacing: '0.3px',
 }
 const toastStyle: React.CSSProperties = {
-  position: 'fixed', top: '80px', right: '20px', background: '#10b981',
-  color: '#fff', padding: '0.75rem 1rem', borderRadius: '8px',
-  boxShadow: '0 4px 12px rgba(0,0,0,0.15)', zIndex: 1000,
-  display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500,
+  position: 'fixed', top: '5rem', right: '1.25rem',
+  background: 'linear-gradient(135deg,#5b21b6,#7c3aed)',
+  color: '#fff', padding: '0.9rem 1.25rem', borderRadius: '12px',
+  boxShadow: '0 8px 32px rgba(124,58,237,0.45)', zIndex: 2000,
+  fontWeight: 600, fontSize: '0.9rem', display: 'flex', gap: '0.5rem', alignItems: 'center',
+  border: '1px solid rgba(255,255,255,0.2)',
 }

@@ -93,7 +93,7 @@ export default function TaskForm({ onCreated }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       {/* Description */}
       <div>
         <label style={labelStyle}>Task Description <span style={{ color: '#ef4444' }}>*</span></label>
@@ -138,11 +138,11 @@ export default function TaskForm({ onCreated }: Props) {
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
           >
-            <div style={{ fontSize: '2rem', marginBottom: '0.35rem' }}>📸</div>
-            <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-              Drag & drop a screenshot here, or <span style={{ color: '#7c3aed', fontWeight: 600 }}>click to browse</span>
+            <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>📸</div>
+            <div style={{ fontSize: '0.95rem', color: '#1f2937', fontWeight: 600, marginBottom: '0.4rem' }}>
+              Drag & drop or <span style={{ color: '#7c3aed', fontWeight: 700 }}>click to browse</span>
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '0.25rem' }}>PNG, JPG, GIF up to 5MB</div>
+            <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>PNG, JPG, GIF up to 5MB</div>
             <input
               ref={fileInputRef}
               type="file"
@@ -154,8 +154,8 @@ export default function TaskForm({ onCreated }: Props) {
         )}
       </div>
 
-      {error && <p style={{ color: '#dc2626', margin: 0, fontSize: '0.875rem' }}>⚠️ {error}</p>}
-      {success && <p style={{ color: '#059669', margin: 0, fontSize: '0.875rem', fontWeight: 500 }}>{success}</p>}
+      {error && <p style={{ color: '#dc2626', margin: 0, fontSize: '0.875rem', padding: '0.75rem 1rem', background: '#fee2e2', borderRadius: '8px', borderLeft: '4px solid #dc2626' }}>⚠️ {error}</p>}
+      {success && <p style={{ color: '#059669', margin: 0, fontSize: '0.875rem', fontWeight: 500, padding: '0.75rem 1rem', background: '#d1fae5', borderRadius: '8px', borderLeft: '4px solid #059669' }}>{success}</p>}
 
       <button type="submit" disabled={loading} style={btnStyle}>
         {loading ? '⏳ Submitting…' : '➕ Submit Task'}
@@ -165,35 +165,40 @@ export default function TaskForm({ onCreated }: Props) {
 }
 
 const labelStyle: React.CSSProperties = {
-  display: 'block', marginBottom: '0.35rem', fontWeight: 600, fontSize: '0.85rem', color: '#374151',
+  display: 'block', marginBottom: '0.5rem', fontWeight: 700, fontSize: '0.875rem', 
+  color: '#1f2937', letterSpacing: '0.3px',
 }
 const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '0.65rem 0.9rem', border: '1.5px solid #e5e7eb',
-  borderRadius: '8px', fontSize: '0.9rem', background: '#fafafa',
+  width: '100%', padding: '0.85rem 1rem', border: '2px solid #e5e7eb',
+  borderRadius: '10px', fontSize: '0.95rem', background: '#fafafa',
+  transition: 'all 0.2s ease', boxSizing: 'border-box',
+  ':focus': { borderColor: '#7c3aed', background: '#fff' },
 }
 const linkIcon: React.CSSProperties = {
-  position: 'absolute', left: '0.7rem', top: '50%', transform: 'translateY(-50%)',
-  fontSize: '0.9rem', pointerEvents: 'none',
+  position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)',
+  fontSize: '1rem', pointerEvents: 'none',
 }
 const dropZone: React.CSSProperties = {
-  border: '2px dashed', borderRadius: '10px', padding: '1.5rem',
-  textAlign: 'center', cursor: 'pointer', transition: 'all 0.15s ease',
+  border: '2px dashed #d1d5db', borderRadius: '12px', padding: '2rem 1.5rem',
+  textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s ease',
+  background: '#fafafa', position: 'relative',
 }
 const previewWrap: React.CSSProperties = {
-  position: 'relative', display: 'inline-block', borderRadius: '8px', overflow: 'hidden',
-  border: '1.5px solid #e5e7eb',
+  position: 'relative', display: 'inline-block', borderRadius: '12px', overflow: 'hidden',
+  border: '2px solid #ede9fe', boxShadow: '0 4px 12px rgba(124,58,237,0.15)',
 }
 const previewImg: React.CSSProperties = {
-  display: 'block', maxWidth: '100%', maxHeight: '200px', objectFit: 'contain',
+  display: 'block', maxWidth: '100%', maxHeight: '240px', objectFit: 'cover',
 }
 const removeBtn: React.CSSProperties = {
-  position: 'absolute', top: '0.4rem', right: '0.4rem',
-  background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none',
-  borderRadius: '6px', padding: '0.2rem 0.5rem', fontSize: '0.75rem',
-  cursor: 'pointer', fontWeight: 600,
+  position: 'absolute', top: '0.6rem', right: '0.6rem',
+  background: 'rgba(0,0,0,0.7)', color: '#fff', border: 'none',
+  borderRadius: '8px', padding: '0.4rem 0.7rem', fontSize: '0.8rem',
+  cursor: 'pointer', fontWeight: 700, backdropFilter: 'blur(4px)',
 }
 const btnStyle: React.CSSProperties = {
-  padding: '0.7rem', background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
-  color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700,
-  fontSize: '0.9rem', cursor: 'pointer', boxShadow: '0 2px 8px rgba(124,58,237,0.3)',
+  padding: '0.9rem 1.5rem', background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
+  color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700,
+  fontSize: '0.95rem', cursor: 'pointer', boxShadow: '0 4px 16px rgba(124,58,237,0.35)',
+  transition: 'all 0.2s ease', width: '100%',
 }

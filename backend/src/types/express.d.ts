@@ -2,7 +2,7 @@ import 'express';
 
 export interface JwtUserPayload {
   sub: string;   // user id
-  role: 'admin' | 'member' | 'ambassador';
+  role: 'admin' | 'member' | 'ambassador' | 'ambassador_admin';
   name: string;
 }
 

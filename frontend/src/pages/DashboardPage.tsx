@@ -86,7 +86,7 @@ export default function DashboardPage() {
         )}
       </div>
 
-      <div style={{ ...grid, gridTemplateColumns: isMobile ? '1fr' : '1fr 320px' }} className="dash-grid">
+      <div style={{ ...grid, gridTemplateColumns: isMobile ? '1fr' : '1fr 340px' }} className="dash-grid">
         {/* Main column */}
         <div style={mainCol}>
           {!isAdmin && (
@@ -176,31 +176,30 @@ const toastStyle: React.CSSProperties = {
   border: '1px solid rgba(255,255,255,0.2)',
 }
 const pageHeader: React.CSSProperties = {
-  marginBottom: '1.75rem', display: 'flex', alignItems: 'center',
-  justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem',
+  marginBottom: '2rem', display: 'flex', alignItems: 'center',
+  justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem',
 }
 const delegateBtn: React.CSSProperties = {
-  padding: '0.65rem 1.35rem',
+  padding: '0.75rem 1.5rem',
   background: 'linear-gradient(135deg,#5b21b6,#7c3aed)',
-  color: '#fff', border: 'none', borderRadius: '10px',
-  fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer',
-  boxShadow: '0 4px 12px rgba(124,58,237,0.35)',
-  display: 'flex', alignItems: 'center', gap: '0.4rem',
+  color: '#fff', border: 'none', borderRadius: '12px',
+  fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer',
+  boxShadow: '0 4px 16px rgba(124,58,237,0.35)',
+  display: 'flex', alignItems: 'center', gap: '0.5rem',
+  transition: 'all 0.2s ease',
 }
-const grid: React.CSSProperties = { display: 'grid', gap: '1.5rem', alignItems: 'start', gridTemplateColumns: '1fr 320px' }
-const mainCol: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '1.5rem' }
-const sideCol: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '1.5rem' }
+const grid: React.CSSProperties = { display: 'grid', gap: '1.75rem', alignItems: 'start' }
+const mainCol: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '1.75rem' }
+const sideCol: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '1.75rem' }
 const card: React.CSSProperties = {
-  background: '#fff', borderRadius: '16px', padding: '1.5rem',
-  boxShadow: '0 2px 12px rgba(124,58,237,0.07)',
+  background: '#fff', borderRadius: '16px', padding: '1.75rem',
+  boxShadow: '0 2px 16px rgba(124,58,237,0.08)',
   border: '1px solid #ede9fe',
   transition: 'box-shadow 0.2s ease',
 }
 const cardTitle: React.CSSProperties = {
-  fontSize: '0.95rem', fontWeight: 700, color: '#4c1d95',
-  marginBottom: '1rem', paddingBottom: '0.6rem',
-  borderBottom: '2px solid #f0ebff',
-  display: 'flex', alignItems: 'center', gap: '0.4rem',
+  fontSize: '1rem', fontWeight: 700, color: '#4c1d95',
+  margin: '0 0 1.25rem 0', letterSpacing: '0.3px',
 }
 const memberRow: React.CSSProperties = {
   display: 'flex', alignItems: 'flex-start', gap: '0.65rem',

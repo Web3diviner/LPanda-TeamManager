@@ -1,4 +1,4 @@
-import express from 'express';
+﻿import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRouter from './routes/auth';
@@ -12,6 +12,7 @@ import feedbackRouter from './routes/feedback';
 import timersRouter from './routes/timers';
 import scheduleRouter from './routes/schedule';
 import meetingsRouter from './routes/meetings';
+import ambassadorAdminRouter from './routes/ambassador-admin';
 import { startScheduler } from './scheduler';
 
 const app = express();
@@ -37,6 +38,7 @@ app.use('/feedback', feedbackRouter);
 app.use('/timers', timersRouter);
 app.use('/schedule', scheduleRouter);
 app.use('/meetings', meetingsRouter);
+app.use('/ambassador-admin', ambassadorAdminRouter);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
@@ -47,3 +49,4 @@ if (require.main === module) {
   startScheduler();
   app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
 }
+

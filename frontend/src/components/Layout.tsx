@@ -68,50 +68,55 @@ export default function Layout() {
 
 const navStyle: React.CSSProperties = {
   background: 'linear-gradient(135deg, #0f0720 0%, #2d0f6b 50%, #5b21b6 100%)',
-  boxShadow: '0 4px 24px rgba(0,0,0,0.25)',
+  boxShadow: '0 8px 32px rgba(91,33,182,0.25)',
   position: 'sticky', top: 0, zIndex: 100,
-  borderBottom: '1px solid rgba(255,255,255,0.08)',
+  borderBottom: '2px solid rgba(255,255,255,0.1)',
 }
 const navInner: React.CSSProperties = {
-  display: 'flex', alignItems: 'center', gap: '1rem',
-  padding: '0 1.5rem', maxWidth: '1200px', margin: '0 auto',
+  display: 'flex', alignItems: 'center', gap: '1.5rem',
+  padding: '0 1.5rem', maxWidth: '1400px', margin: '0 auto',
 }
 const brandWrap: React.CSSProperties = {
-  display: 'flex', alignItems: 'center', gap: '0.5rem', marginRight: '1rem', flexShrink: 0,
+  display: 'flex', alignItems: 'center', gap: '0.6rem', marginRight: '1.5rem', flexShrink: 0,
 }
 const brandText: React.CSSProperties = {
-  fontWeight: 800, color: '#fff', letterSpacing: '-0.3px', whiteSpace: 'nowrap',
+  fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', whiteSpace: 'nowrap',
 }
 const linksStyle: React.CSSProperties = {
-  display: 'flex', alignItems: 'center', gap: '0.25rem', flex: 1,
+  display: 'flex', alignItems: 'center', gap: '0.4rem', flex: 1,
 }
 const linkStyle = ({ isActive }: { isActive: boolean }): React.CSSProperties => ({
-  color: isActive ? '#fff' : 'rgba(255,255,255,0.75)',
-  textDecoration: 'none', fontWeight: isActive ? 600 : 400, fontSize: '0.875rem',
-  padding: '0.4rem 0.75rem', borderRadius: '6px',
-  background: isActive ? 'rgba(255,255,255,0.2)' : 'transparent',
-  transition: 'all 0.15s ease', whiteSpace: 'nowrap',
+  color: isActive ? '#fff' : 'rgba(255,255,255,0.8)',
+  textDecoration: 'none', fontWeight: isActive ? 700 : 500, fontSize: '0.9rem',
+  padding: '0.5rem 0.9rem', borderRadius: '8px',
+  background: isActive ? 'rgba(255,255,255,0.18)' : 'transparent',
+  transition: 'all 0.2s ease', whiteSpace: 'nowrap',
+  border: isActive ? '1px solid rgba(255,255,255,0.2)' : '1px solid transparent',
 })
 const mobileLinkStyle = ({ isActive }: { isActive: boolean }): React.CSSProperties => ({
-  color: '#fff', textDecoration: 'none', fontWeight: isActive ? 700 : 400,
-  fontSize: '1rem', padding: '0.65rem 0.5rem', borderRadius: '8px',
-  background: isActive ? 'rgba(255,255,255,0.2)' : 'transparent', display: 'block',
+  color: '#fff', textDecoration: 'none', fontWeight: isActive ? 700 : 500,
+  fontSize: '1rem', padding: '0.75rem 0.75rem', borderRadius: '8px',
+  background: isActive ? 'rgba(255,255,255,0.15)' : 'transparent', display: 'block',
+  transition: 'all 0.2s ease',
 })
 const mobileMenuStyle: React.CSSProperties = {
-  padding: '0.75rem 1.5rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.25rem',
-  borderTop: '1px solid rgba(255,255,255,0.15)', background: 'rgba(76,29,149,0.97)',
+  padding: '0.85rem 1.5rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '0.35rem',
+  borderTop: '1px solid rgba(255,255,255,0.15)', background: 'rgba(76,29,149,0.98)',
 }
 const userBadge: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.15)', color: '#fff', padding: '0.3rem 0.75rem',
-  borderRadius: '20px', fontSize: '0.8rem', fontWeight: 500, whiteSpace: 'nowrap',
+  background: 'rgba(255,255,255,0.18)', color: '#fff', padding: '0.35rem 0.85rem',
+  borderRadius: '20px', fontSize: '0.85rem', fontWeight: 600, whiteSpace: 'nowrap',
+  border: '1px solid rgba(255,255,255,0.2)',
 }
 const logoutBtn: React.CSSProperties = {
   background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)',
-  color: '#fff', padding: '0.35rem 0.9rem', borderRadius: '6px',
-  fontWeight: 500, fontSize: '0.85rem', cursor: 'pointer', whiteSpace: 'nowrap',
+  color: '#fff', padding: '0.4rem 1rem', borderRadius: '8px',
+  fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', whiteSpace: 'nowrap',
+  transition: 'all 0.2s ease',
 }
 const hamburgerStyle: React.CSSProperties = {
   background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)',
-  color: '#fff', width: '38px', height: '38px', borderRadius: '8px', fontSize: '1.1rem',
+  color: '#fff', width: '40px', height: '40px', borderRadius: '8px', fontSize: '1.1rem',
   cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  transition: 'all 0.2s ease',
 }
