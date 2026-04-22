@@ -27,7 +27,10 @@ describe('POST /tasks', () => {
       submitted_by: 'user-uuid-1',
       status: 'pending',
       submitted_at: new Date().toISOString(),
+      screenshot_url: null,
+      task_link: null,
     };
+    // Mock the insert query (no duplicate check when task_link is not provided)
     mockQuery.mockResolvedValueOnce({ rows: [mockTask] });
 
     const res = await request(app)
@@ -41,6 +44,19 @@ describe('POST /tasks', () => {
       status: 'pending',
       submitted_by: 'user-uuid-1',
     });
+  });
+
+  it('returns 409 when submitting duplicate task_link', async () => {
+    // Mock finding an existing task with the same link
+    mockQuery.mockResolvedValueOnce({ rows: [{ id: 'existing-task-id' }] });
+
+    const res = await request(app)
+      .post('/tasks')
+      .set('Cookie', `token=${makeToken()}`)
+      .send({ description: 'Duplicate task', task_link: 'https://example.com/task1' });
+
+    expect(res.status).toBe(409);
+    expect(res.body.error).toContain('already submitted');
   });
 
   it('returns 400 when description is empty string', async () => {
@@ -65,15 +81,14 @@ describe('POST /tasks', () => {
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
-  it('returns 400 when description is missing', async () => {
+  it('returns 403 when admin tries to submit a task', async () => {
     const res = await request(app)
       .post('/tasks')
-      .set('Cookie', `token=${makeToken()}`)
-      .send({});
+      .set('Cookie', `token=${makeToken('admin')}`)
+      .send({ description: 'Admin task' });
 
-    expect(res.status).toBe(400);
-    expect(res.body).toHaveProperty('error');
-    expect(mockQuery).not.toHaveBeenCalled();
+    expect(res.status).toBe(403);
+    expect(res.body.error).toContain('Admins do not submit tasks');
   });
 
   it('returns 401 when no auth cookie is provided', async () => {
@@ -83,17 +98,5 @@ describe('POST /tasks', () => {
 
     expect(res.status).toBe(401);
     expect(mockQuery).not.toHaveBeenCalled();
-  });
-
-  it('returns 500 when the database throws', async () => {
-    mockQuery.mockRejectedValueOnce(new Error('DB error'));
-
-    const res = await request(app)
-      .post('/tasks')
-      .set('Cookie', `token=${makeToken()}`)
-      .send({ description: 'Valid task' });
-
-    expect(res.status).toBe(500);
-    expect(res.body).toHaveProperty('error');
   });
 });

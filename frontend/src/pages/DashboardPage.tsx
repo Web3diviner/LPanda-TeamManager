@@ -97,7 +97,7 @@ export default function DashboardPage() {
           )}
 
           <div style={card}>
-            <h3 style={cardTitle}>📋 {isAdmin ? 'All Submitted Tasks' : 'My Tasks'}</h3>
+            <h3 style={cardTitle}>📋 {isAdmin ? 'All Submitted Tasks' : 'My Submitted Tasks'}</h3>
             <TaskList
               refreshTrigger={refreshTrigger}
               onAssign={isAdmin ? (id) => setAssignTaskId(id) : undefined}
@@ -105,12 +105,12 @@ export default function DashboardPage() {
           </div>
 
           <div style={card}>
-            <h3 style={cardTitle}>🎯 Delegated Tasks</h3>
+            <h3 style={cardTitle}>🎯 {isAdmin ? 'All Delegated Tasks' : 'My Delegated Tasks'}</h3>
             <DelegatedTasksPanel refreshTrigger={refreshTrigger} />
           </div>
 
           <div style={card}>
-            <h3 style={cardTitle}>� {isAdmin ? 'User Feedback' : 'Feedback'}</h3>
+            <h3 style={cardTitle}>💬 {isAdmin ? 'User Feedback' : 'Feedback'}</h3>
             <FeedbackPanel />
           </div>
         </div>

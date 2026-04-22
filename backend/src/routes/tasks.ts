@@ -48,6 +48,7 @@ router.get('/', authMiddleware, async (req: Request, res: Response): Promise<voi
   try {
     let result;
     if (user.role === 'admin') {
+      // Admins see all tasks
       result = await pool.query(
         `SELECT t.id, t.description, t.status, t.deadline, t.submitted_at, t.completed_at,
                 t.screenshot_url, t.task_link,
@@ -59,18 +60,7 @@ router.get('/', authMiddleware, async (req: Request, res: Response): Promise<voi
          ORDER BY t.submitted_at DESC`,
       );
     } else if (user.role === 'ambassador') {
-      result = await pool.query(
-        `SELECT t.id, t.description, t.status, t.deadline, t.submitted_at, t.completed_at,
-                t.screenshot_url, t.task_link,
-                t.submitted_by, su.name AS submitted_by_name,
-                t.assigned_to, au.name AS assigned_to_name
-         FROM tasks t
-         INNER JOIN users su ON su.id = t.submitted_by
-         LEFT JOIN users au ON au.id = t.assigned_to
-         WHERE su.role = 'ambassador'
-         ORDER BY t.submitted_at DESC`,
-      );
-    } else {
+      // Ambassadors only see their own submitted tasks
       result = await pool.query(
         `SELECT t.id, t.description, t.status, t.deadline, t.submitted_at, t.completed_at,
                 t.screenshot_url, t.task_link,
@@ -79,7 +69,21 @@ router.get('/', authMiddleware, async (req: Request, res: Response): Promise<voi
          FROM tasks t
          LEFT JOIN users su ON su.id = t.submitted_by
          LEFT JOIN users au ON au.id = t.assigned_to
-         WHERE t.submitted_by = $1 OR t.assigned_to = $1
+         WHERE t.submitted_by = $1
+         ORDER BY t.submitted_at DESC`,
+        [user.sub],
+      );
+    } else {
+      // Regular members only see their own submitted tasks
+      result = await pool.query(
+        `SELECT t.id, t.description, t.status, t.deadline, t.submitted_at, t.completed_at,
+                t.screenshot_url, t.task_link,
+                t.submitted_by, su.name AS submitted_by_name,
+                t.assigned_to, au.name AS assigned_to_name
+         FROM tasks t
+         LEFT JOIN users su ON su.id = t.submitted_by
+         LEFT JOIN users au ON au.id = t.assigned_to
+         WHERE t.submitted_by = $1
          ORDER BY t.submitted_at DESC`,
         [user.sub],
       );
@@ -91,7 +95,7 @@ router.get('/', authMiddleware, async (req: Request, res: Response): Promise<voi
   }
 });
 
-// POST /tasks — Members only
+// POST /tasks — Members only (admins don't submit tasks)
 router.post('/', authMiddleware, async (req: Request, res: Response): Promise<void> => {
   if (req.user!.role === 'admin') {
     res.status(403).json({ error: 'Admins do not submit tasks.' });
@@ -106,7 +110,7 @@ router.post('/', authMiddleware, async (req: Request, res: Response): Promise<vo
   const submittedBy = req.user!.sub;
   const id = randomUUID();
   try {
-    // Check for duplicate task_link
+    // Check for duplicate task_link to prevent duplicate submissions
     if (task_link) {
       const existing = await pool.query(
         'SELECT id FROM tasks WHERE submitted_by = $1 AND task_link = $2',
