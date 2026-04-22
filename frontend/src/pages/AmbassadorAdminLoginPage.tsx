@@ -18,16 +18,25 @@ export default function AmbassadorAdminLoginPage() {
     try {
       const res = await api.post('/auth/login', { email, password })
       const data = res.data
+      
+      // Check if user has ambassador_admin role
       if (data.role !== 'ambassador_admin') {
         setError('Access denied: not an ambassador admin account')
+        setLoading(false)
         return
       }
+      
+      // Successful authentication - store token and set user context
       localStorage.setItem('ambassador_admin_token', data.token)
       setUser({ id: data.id, name: data.name, email: data.email, role: 'ambassador_admin' })
+      
+      // Navigate to dashboard
       navigate('/ambassador-admin/dashboard')
+      setLoading(false)
     } catch (err: any) {
-      setError(err.response?.data?.error ?? 'Invalid email or password')
-    } finally {
+      // Extract error message from API response or use fallback
+      const errorMessage = err.response?.data?.error || 'Invalid email or password'
+      setError(errorMessage)
       setLoading(false)
     }
   }
