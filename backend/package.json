@@ -9,7 +9,8 @@
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
     "test": "jest --runInBand",
-    "seed:admin": "ts-node src/seed-admin.ts"
+    "seed:admin": "ts-node src/seed-admin.ts",
+    "seed:ambassador-admin": "ts-node src/seed-ambassador-admin.ts"
   },
   "dependencies": {
     "@types/bcrypt": "^5.0.2",

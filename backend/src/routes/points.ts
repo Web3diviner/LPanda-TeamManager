@@ -38,12 +38,13 @@ router.get('/me', authMiddleware, async (req: Request, res: Response): Promise<v
   }
 });
 
-// GET /points/leaderboard — all users ordered by points DESC, name ASC
+// GET /points/leaderboard — all users ordered by points DESC, name ASC (excludes ambassadors)
 router.get('/leaderboard', authMiddleware, async (_req: Request, res: Response): Promise<void> => {
   try {
     const result = await pool.query(
-      `SELECT id, name, points
+      `SELECT id, name, points, avatar_url
        FROM users
+       WHERE role != 'ambassador'
        ORDER BY points DESC, name ASC`,
     );
 

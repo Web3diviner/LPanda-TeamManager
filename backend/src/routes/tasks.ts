@@ -95,10 +95,10 @@ router.get('/', authMiddleware, async (req: Request, res: Response): Promise<voi
   }
 });
 
-// POST /tasks — Members only (admins don't submit tasks)
+// POST /tasks — Members only (admins and ambassador admins don't submit tasks)
 router.post('/', authMiddleware, async (req: Request, res: Response): Promise<void> => {
-  if (req.user!.role === 'admin') {
-    res.status(403).json({ error: 'Admins do not submit tasks.' });
+  if (req.user!.role === 'admin' || req.user!.role === 'ambassador_admin') {
+    res.status(403).json({ error: 'Admins and Ambassador Admins do not submit tasks.' });
     return;
   }
   const parsed = CreateTaskSchema.safeParse(req.body);
