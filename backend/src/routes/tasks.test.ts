@@ -20,29 +20,48 @@ beforeEach(() => {
 });
 
 describe('POST /tasks', () => {
-  it('returns 201 with the created task on valid submission', async () => {
+  it('returns 403 when member tries to submit a task', async () => {
+    const res = await request(app)
+      .post('/tasks')
+      .set('Cookie', `token=${makeToken('member')}`)
+      .send({ description: 'Member task' });
+
+    expect(res.status).toBe(403);
+    expect(res.body.error).toContain('Task submission is restricted to delegated tasks only');
+  });
+
+  it('returns 403 when ambassador tries to submit a task', async () => {
+    const res = await request(app)
+      .post('/tasks')
+      .set('Cookie', `token=${makeToken('ambassador')}`)
+      .send({ description: 'Ambassador task' });
+
+    expect(res.status).toBe(403);
+    expect(res.body.error).toContain('Task submission is restricted to delegated tasks only');
+  });
+
+  it('returns 201 with the created task when admin submits (legacy support)', async () => {
     const mockTask = {
       id: 'task-uuid-1',
-      description: 'Write unit tests',
-      submitted_by: 'user-uuid-1',
+      description: 'Admin submitted task',
+      submitted_by: 'admin-uuid-1',
       status: 'pending',
       submitted_at: new Date().toISOString(),
       screenshot_url: null,
       task_link: null,
     };
-    // Mock the insert query (no duplicate check when task_link is not provided)
+    // Mock the insert query
     mockQuery.mockResolvedValueOnce({ rows: [mockTask] });
 
     const res = await request(app)
       .post('/tasks')
-      .set('Cookie', `token=${makeToken()}`)
-      .send({ description: 'Write unit tests' });
+      .set('Cookie', `token=${makeToken('admin', 'admin-uuid-1')}`)
+      .send({ description: 'Admin submitted task' });
 
     expect(res.status).toBe(201);
     expect(res.body).toMatchObject({
-      description: 'Write unit tests',
+      description: 'Admin submitted task',
       status: 'pending',
-      submitted_by: 'user-uuid-1',
     });
   });
 
@@ -52,7 +71,7 @@ describe('POST /tasks', () => {
 
     const res = await request(app)
       .post('/tasks')
-      .set('Cookie', `token=${makeToken()}`)
+      .set('Cookie', `token=${makeToken('admin', 'admin-uuid-1')}`)
       .send({ description: 'Duplicate task', task_link: 'https://example.com/task1' });
 
     expect(res.status).toBe(409);
@@ -62,7 +81,7 @@ describe('POST /tasks', () => {
   it('returns 400 when description is empty string', async () => {
     const res = await request(app)
       .post('/tasks')
-      .set('Cookie', `token=${makeToken()}`)
+      .set('Cookie', `token=${makeToken('admin', 'admin-uuid-1')}`)
       .send({ description: '' });
 
     expect(res.status).toBe(400);
@@ -73,7 +92,7 @@ describe('POST /tasks', () => {
   it('returns 400 when description is whitespace-only', async () => {
     const res = await request(app)
       .post('/tasks')
-      .set('Cookie', `token=${makeToken()}`)
+      .set('Cookie', `token=${makeToken('admin', 'admin-uuid-1')}`)
       .send({ description: '   ' });
 
     expect(res.status).toBe(400);
@@ -81,14 +100,14 @@ describe('POST /tasks', () => {
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
-  it('returns 403 when admin tries to submit a task', async () => {
+  it('returns 403 when ambassador_admin tries to submit a task', async () => {
     const res = await request(app)
       .post('/tasks')
-      .set('Cookie', `token=${makeToken('admin')}`)
-      .send({ description: 'Admin task' });
+      .set('Cookie', `token=${makeToken('ambassador_admin' as any, 'amb-admin-uuid-1')}`)
+      .send({ description: 'Ambassador Admin task' });
 
     expect(res.status).toBe(403);
-    expect(res.body.error).toContain('Admins do not submit tasks');
+    expect(res.body.error).toContain('Ambassador Admins do not submit tasks');
   });
 
   it('returns 401 when no auth cookie is provided', async () => {

@@ -95,10 +95,17 @@ router.get('/', authMiddleware, async (req: Request, res: Response): Promise<voi
   }
 });
 
-// POST /tasks — Members only (admins and ambassador admins don't submit tasks)
+// POST /tasks — Restricted to delegated tasks only (members and ambassadors blocked)
 router.post('/', authMiddleware, async (req: Request, res: Response): Promise<void> => {
-  if (req.user!.role === 'admin' || req.user!.role === 'ambassador_admin') {
-    res.status(403).json({ error: 'Admins and Ambassador Admins do not submit tasks.' });
+  // Block members and ambassadors - they can only work on delegated tasks
+  if (req.user!.role === 'member' || req.user!.role === 'ambassador') {
+    res.status(403).json({ error: 'Task submission is restricted to delegated tasks only.' });
+    return;
+  }
+  
+  // Block ambassador admins from submitting tasks (they should delegate instead)
+  if (req.user!.role === 'ambassador_admin') {
+    res.status(403).json({ error: 'Ambassador Admins do not submit tasks.' });
     return;
   }
   const parsed = CreateTaskSchema.safeParse(req.body);

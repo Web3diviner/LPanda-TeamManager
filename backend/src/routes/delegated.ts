@@ -36,14 +36,8 @@ router.get('/', authMiddleware, async (req: Request, res: Response): Promise<voi
     if (user.role === 'admin') {
       // Admins see all delegated tasks
       result = await pool.query(baseQuery + ' ORDER BY d.created_at DESC');
-    } else if (user.role === 'ambassador') {
-      // Ambassadors only see delegated tasks assigned to ambassadors
-      result = await pool.query(
-        baseQuery + ' WHERE au.role = $1 ORDER BY d.created_at DESC',
-        ['ambassador']
-      );
     } else {
-      // Regular members only see their own delegated tasks
+      // Members and ambassadors only see their own delegated tasks
       result = await pool.query(
         baseQuery + ' WHERE d.assigned_to = $1 ORDER BY d.created_at DESC',
         [user.sub]

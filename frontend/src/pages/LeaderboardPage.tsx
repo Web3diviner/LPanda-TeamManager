@@ -6,6 +6,7 @@ interface LeaderboardEntry {
   id: string
   name: string
   points: number
+  avatar_url?: string | null
 }
 
 const medals = ['🥇', '🥈', '🥉']

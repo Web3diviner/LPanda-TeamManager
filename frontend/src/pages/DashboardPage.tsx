@@ -89,25 +89,39 @@ export default function DashboardPage() {
       <div style={{ ...grid, gridTemplateColumns: isMobile ? '1fr' : '1fr 340px' }} className="dash-grid">
         {/* Main column */}
         <div style={mainCol}>
+          {/* For non-admins, show delegated tasks first (prominently) */}
           {!isAdmin && (
+            <div style={card}>
+              <h3 style={cardTitle}>🎯 My Tasks</h3>
+              <DelegatedTasksPanel refreshTrigger={refreshTrigger} />
+            </div>
+          )}
+
+          {/* Admin-only sections */}
+          {isAdmin && (
             <div style={card}>
               <h3 style={cardTitle}>📝 Submit a Task</h3>
               <TaskForm onCreated={refresh} />
             </div>
           )}
 
-          <div style={card}>
-            <h3 style={cardTitle}>📋 {isAdmin ? 'All Submitted Tasks' : 'My Submitted Tasks'}</h3>
-            <TaskList
-              refreshTrigger={refreshTrigger}
-              onAssign={isAdmin ? (id) => setAssignTaskId(id) : undefined}
-            />
-          </div>
+          {isAdmin && (
+            <div style={card}>
+              <h3 style={cardTitle}>📋 All Submitted Tasks</h3>
+              <TaskList
+                refreshTrigger={refreshTrigger}
+                onAssign={(id) => setAssignTaskId(id)}
+              />
+            </div>
+          )}
 
-          <div style={card}>
-            <h3 style={cardTitle}>🎯 {isAdmin ? 'All Delegated Tasks' : 'My Delegated Tasks'}</h3>
-            <DelegatedTasksPanel refreshTrigger={refreshTrigger} />
-          </div>
+          {/* For admins, show delegated tasks after submitted tasks */}
+          {isAdmin && (
+            <div style={card}>
+              <h3 style={cardTitle}>🎯 All Delegated Tasks</h3>
+              <DelegatedTasksPanel refreshTrigger={refreshTrigger} />
+            </div>
+          )}
 
           <div style={card}>
             <h3 style={cardTitle}>💬 {isAdmin ? 'User Feedback' : 'Feedback'}</h3>
