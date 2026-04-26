@@ -25,9 +25,11 @@ export default function DashboardPage() {
   const [counts, setCounts] = useState<AssignmentCount[]>([])
   const prevAssignedTaskIds = useRef<Set<string>>(new Set())
 
+  const isAdmin = user?.role === 'admin'
+
   function refresh() {
     setRefreshTrigger(t => t + 1)
-    if (user?.role === 'admin') fetchCounts()
+    if (isAdmin) fetchCounts()
   }
 
   async function fetchCounts() {
@@ -38,7 +40,7 @@ export default function DashboardPage() {
   }
 
   useEffect(() => {
-    if (user?.role === 'admin') { fetchCounts(); return }
+    if (isAdmin) { fetchCounts(); return }
     async function checkAssignments() {
       try {
         const res = await api.get('/tasks')
@@ -55,10 +57,8 @@ export default function DashboardPage() {
     checkAssignments()
     const t = setInterval(checkAssignments, 30_000)
     return () => clearInterval(t)
-  }, [user])
+  }, [user, isAdmin])
 
-  const isAdmin = user?.role === 'admin'
-  const isAmbassadorAdmin = user?.role === 'ambassador_admin'
   const isMobile = useIsMobile()
 
   return (
@@ -80,7 +80,7 @@ export default function DashboardPage() {
             {isAdmin ? ' — manage your team from here' : ' — track your progress'}
           </p>
         </div>
-        {(user?.role === 'admin') && (
+        {isAdmin && (
           <button onClick={() => setShowDelegate(true)} style={delegateBtn}>
             <span>🎯</span> Delegate Task
           </button>
@@ -90,8 +90,8 @@ export default function DashboardPage() {
       <div style={{ ...grid, gridTemplateColumns: isMobile ? '1fr' : '1fr 340px' }} className="dash-grid">
         {/* Main column */}
         <div style={mainCol}>
-          {/* For non-admins and non-ambassador-admins, show delegated tasks first (prominently) */}
-          {!isAdmin && !isAmbassadorAdmin && (
+          {/* For non-admins, show delegated tasks first (prominently) */}
+          {!isAdmin && (
             <div style={card}>
               <h3 style={cardTitle}>🎯 My Tasks</h3>
               <DelegatedTasksPanel refreshTrigger={refreshTrigger} />
@@ -116,10 +116,10 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* For admins and ambassador admins, show delegated tasks */}
-          {(isAdmin || isAmbassadorAdmin) && (
+          {/* For admins, show delegated tasks */}
+          {isAdmin && (
             <div style={card}>
-              <h3 style={cardTitle}>🎯 {isAdmin ? 'All Delegated Tasks' : 'Delegated Tasks'}</h3>
+              <h3 style={cardTitle}>🎯 All Delegated Tasks</h3>
               <DelegatedTasksPanel refreshTrigger={refreshTrigger} />
             </div>
           )}

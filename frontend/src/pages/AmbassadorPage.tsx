@@ -15,13 +15,9 @@ interface Task {
 
 export default function AmbassadorPage() {
   const { user } = useAuth()
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [refreshTrigger] = useState(0)
   const [toast, setToast] = useState('')
   const prevAssignedTaskIds = useRef<Set<string>>(new Set())
-
-  function refresh() {
-    setRefreshTrigger(t => t + 1)
-  }
 
   useEffect(() => {
     async function checkAssignments() {
@@ -119,9 +115,4 @@ const toastStyle: React.CSSProperties = {
   boxShadow: '0 8px 32px rgba(124,58,237,0.45)', zIndex: 2000,
   fontWeight: 600, fontSize: '0.9rem', display: 'flex', gap: '0.5rem', alignItems: 'center',
   border: '1px solid rgba(255,255,255,0.2)',
-}
-const card: React.CSSProperties = {
-  background: '#fff', borderRadius: '16px', padding: '1.75rem',
-  border: '1px solid #ede9fe', boxShadow: '0 2px 16px rgba(124,58,237,0.08)',
-  transition: 'box-shadow 0.2s ease',
 }

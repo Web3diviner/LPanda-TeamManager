@@ -72,7 +72,7 @@ Incremental implementation of the team task manager: project setup → database 
     - Test wrong assignee (403), already confirmed (409), confirmed after deadline (0 points)
     - _Requirements: 3.2, 3.4, 3.5_
 
-- [-] 6. Deadline scheduler and point deductions
+- [x] 6. Deadline scheduler and point deductions
   - [x] 6.1 Implement `DeadlineScheduler` using `node-cron` — runs every minute; queries tasks with status 'assigned' and deadline < now(); for each, calls `PointsService.deduct` and sets status to 'missed'
     - _Requirements: 4.5, 5.3_
   - [x] 6.2 Implement `PointsService.deduct(userId, taskId)` — insert a -1.5 transaction and decrement `users.points` atomically
@@ -91,7 +91,7 @@ Incremental implementation of the team task manager: project setup → database 
     - **Property 1: For any user, users.points == SUM(point_transactions.delta) for that user**
     - **Validates: Requirements 5.1, 5.2, 5.3**
 
-- [-] 8. Leaderboard
+- [x] 8. Leaderboard
   - [x] 8.1 Implement `GET /points/leaderboard` — query all users ordered by `points DESC, name ASC`
     - _Requirements: 6.1, 6.2, 6.3_
   - [ ]* 8.2 Write property test for leaderboard sort invariant
@@ -105,7 +105,7 @@ Incremental implementation of the team task manager: project setup → database 
     - **Property 6: For any 7-day window, recap totals must equal the sum of transactions in that window**
     - **Validates: Requirements 7.2**
 
-- [ ] 10. Checkpoint — backend complete
+- [x] 10. Checkpoint — backend complete
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 11. Announcements

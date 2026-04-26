@@ -172,7 +172,6 @@ const inputStyle: React.CSSProperties = {
   width: '100%', padding: '0.85rem 1rem', border: '2px solid #e5e7eb',
   borderRadius: '10px', fontSize: '0.95rem', background: '#fafafa',
   transition: 'all 0.2s ease', boxSizing: 'border-box',
-  ':focus': { borderColor: '#7c3aed', background: '#fff' },
 }
 const linkIcon: React.CSSProperties = {
   position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)',
