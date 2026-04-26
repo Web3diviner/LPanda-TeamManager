@@ -93,9 +93,23 @@ export default function AmbassadorAdminDashboardPage() {
 
   return (
     <div>
+      {/* VERY OBVIOUS TEST SECTION */}
+      <div style={{ 
+        background: 'linear-gradient(135deg, #ff0000, #ff6600)', 
+        color: '#fff', 
+        padding: '1rem', 
+        marginBottom: '1rem', 
+        borderRadius: '8px',
+        textAlign: 'center',
+        fontSize: '1.2rem',
+        fontWeight: 'bold'
+      }}>
+        🚨 UPDATED AMBASSADOR ADMIN DASHBOARD - VERSION 2.0 🚨
+      </div>
+      
       {/* Debug info */}
       <div style={{ background: '#f0f0f0', padding: '0.5rem', marginBottom: '1rem', fontSize: '0.8rem' }}>
-        Debug: User = {user?.name}, Loading = {loading.toString()}
+        Debug: User = {user?.name}, Loading = {loading.toString()}, ShowDelegateForm = {showDelegateForm.toString()}
       </div>
       
       {msg && (
@@ -113,12 +127,33 @@ export default function AmbassadorAdminDashboardPage() {
             </h1>
             <p style={{ color: '#64748b', margin: 0 }}>Welcome back, {user?.name} — delegate, approve, and monitor</p>
           </div>
-          <button 
-            onClick={() => setShowDelegateForm(!showDelegateForm)} 
-            style={{...delegateBtn, zIndex: 1000, position: 'relative'}}
-          >
-            🎯 {showDelegateForm ? 'Cancel' : 'Delegate Task'}
-          </button>
+          
+          {/* VERY OBVIOUS DELEGATE BUTTON */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <button 
+              onClick={() => setShowDelegateForm(!showDelegateForm)} 
+              style={{
+                background: 'linear-gradient(135deg, #ff6b35, #f7931e)', 
+                color: '#fff', 
+                border: '3px solid #ff4500', 
+                borderRadius: '12px', 
+                padding: '1rem 2rem', 
+                fontWeight: 900, 
+                cursor: 'pointer',
+                fontSize: '1.1rem', 
+                boxShadow: '0 8px 24px rgba(255,107,53,0.4)',
+                zIndex: 9999, 
+                position: 'relative',
+                textTransform: 'uppercase',
+                letterSpacing: '1px'
+              }}
+            >
+              🎯 {showDelegateForm ? 'CANCEL DELEGATE' : 'DELEGATE TASK NOW'}
+            </button>
+            <div style={{ fontSize: '0.8rem', color: '#666', textAlign: 'center' }}>
+              Click here to delegate tasks to ambassadors
+            </div>
+          </div>
         </div>
       </div>
 
