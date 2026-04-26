@@ -328,11 +328,6 @@ const msgBox: React.CSSProperties = {
 const closeBtn: React.CSSProperties = {
   background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem', color: '#166534'
 }
-const delegateBtn: React.CSSProperties = {
-  background: 'linear-gradient(135deg, #1e5fa8, #2563eb)', color: '#fff', border: 'none',
-  borderRadius: '8px', padding: '0.75rem 1.5rem', fontWeight: 700, cursor: 'pointer',
-  fontSize: '0.9rem', boxShadow: '0 4px 12px rgba(30,95,168,0.3)', transition: 'all 0.2s'
-}
 const delegateCard: React.CSSProperties = {
   background: '#fff', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem',
   boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: '2px solid #1e5fa8'
