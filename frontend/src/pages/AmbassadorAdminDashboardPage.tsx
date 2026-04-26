@@ -93,6 +93,11 @@ export default function AmbassadorAdminDashboardPage() {
 
   return (
     <div>
+      {/* Debug info */}
+      <div style={{ background: '#f0f0f0', padding: '0.5rem', marginBottom: '1rem', fontSize: '0.8rem' }}>
+        Debug: User = {user?.name}, Loading = {loading.toString()}
+      </div>
+      
       {msg && (
         <div style={msgBox}>
           {msg}
@@ -110,7 +115,7 @@ export default function AmbassadorAdminDashboardPage() {
           </div>
           <button 
             onClick={() => setShowDelegateForm(!showDelegateForm)} 
-            style={delegateBtn}
+            style={{...delegateBtn, zIndex: 1000, position: 'relative'}}
           >
             🎯 {showDelegateForm ? 'Cancel' : 'Delegate Task'}
           </button>
