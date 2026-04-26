@@ -20,17 +20,24 @@ const AssignTaskSchema = z.object({
 
 // ── IMPORTANT: static routes BEFORE /:id ──────────────────────────────────────
 
-// GET /tasks/assignment-counts — Admin: task counts per member
+// GET /tasks/assignment-counts — Admin: task counts per member (includes both tasks and delegated_tasks)
 router.get('/assignment-counts', authMiddleware, requireAdmin, async (_req: Request, res: Response): Promise<void> => {
   try {
     const result = await pool.query(
       `SELECT u.id, u.name,
-              COUNT(t.id) FILTER (WHERE t.status = 'assigned')  AS assigned,
-              COUNT(t.id) FILTER (WHERE t.status = 'completed') AS completed,
-              COUNT(t.id) FILTER (WHERE t.status = 'missed')    AS missed,
+              COUNT(t.id) FILTER (WHERE t.status = 'assigned')  +
+              COUNT(dt.id) FILTER (WHERE dt.status = 'assigned') AS assigned,
+              
+              COUNT(t.id) FILTER (WHERE t.status = 'completed') +
+              COUNT(dt.id) FILTER (WHERE dt.status IN ('completed', 'approved')) AS completed,
+              
+              COUNT(t.id) FILTER (WHERE t.status = 'missed')    +
+              COUNT(dt.id) FILTER (WHERE dt.status = 'missed') AS missed,
+              
               COUNT(t.id) FILTER (WHERE t.status = 'pending')   AS pending
        FROM users u
        LEFT JOIN tasks t ON t.assigned_to = u.id
+       LEFT JOIN delegated_tasks dt ON dt.assigned_to = u.id
        WHERE u.role IN ('member', 'ambassador')
        GROUP BY u.id, u.name
        ORDER BY u.name ASC`,

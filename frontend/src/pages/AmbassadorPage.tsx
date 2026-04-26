@@ -1,12 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
-import TaskForm from '../components/TaskForm'
-import TaskList, { type Task } from '../components/TaskList'
+import DelegatedTasksPanel from '../components/DelegatedTasksPanel'
 import AnnouncementBoard from '../components/AnnouncementBoard'
 import TimerWidget from '../components/TimerWidget'
 import FeedbackPanel from '../components/FeedbackPanel'
 import { useAuth } from '../context/AuthContext'
 import { useIsMobile } from '../hooks/useIsMobile'
 import api from '../api'
+
+interface Task {
+  id: string
+  status: string
+  assigned_to: string | null
+}
 
 export default function AmbassadorPage() {
   const { user } = useAuth()
@@ -21,12 +26,12 @@ export default function AmbassadorPage() {
   useEffect(() => {
     async function checkAssignments() {
       try {
-        const res = await api.get('/tasks')
+        const res = await api.get('/delegated')
         const tasks: Task[] = res.data
         const myAssigned = tasks.filter(t => t.status === 'assigned' && t.assigned_to === user!.id).map(t => t.id)
         const newOnes = myAssigned.filter(id => !prevAssignedTaskIds.current.has(id))
         if (newOnes.length > 0 && prevAssignedTaskIds.current.size > 0) {
-          setToast('🎯 You have a new task assigned!')
+          setToast('🎯 You have a new task delegated!')
           setTimeout(() => setToast(''), 5000)
         }
         prevAssignedTaskIds.current = new Set(myAssigned)
@@ -63,21 +68,24 @@ export default function AmbassadorPage() {
         {/* Main column */}
         <div style={mainCol}>
           <div style={card}>
-            <h3 style={cardTitle}>📝 Submit a Task</h3>
-            <TaskForm onCreated={refresh} />
+            <h3 style={cardTitle}>🎯 My Tasks</h3>
+            <DelegatedTasksPanel refreshTrigger={refreshTrigger} />
           </div>
 
           <div style={card}>
-            <h3 style={cardTitle}>📋 My Tasks</h3>
-            <TaskList refreshTrigger={refreshTrigger} />
+            <h3 style={cardTitle}>💬 Feedback</h3>
+            <FeedbackPanel />
           </div>
         </div>
 
         {/* Sidebar */}
         <div style={sidebar}>
-          <AnnouncementBoard />
-          <TimerWidget />
-          <FeedbackPanel />
+          <div style={card}>
+            <TimerWidget />
+          </div>
+          <div style={card}>
+            <AnnouncementBoard />
+          </div>
         </div>
       </div>
     </div>
@@ -111,4 +119,9 @@ const toastStyle: React.CSSProperties = {
   boxShadow: '0 8px 32px rgba(124,58,237,0.45)', zIndex: 2000,
   fontWeight: 600, fontSize: '0.9rem', display: 'flex', gap: '0.5rem', alignItems: 'center',
   border: '1px solid rgba(255,255,255,0.2)',
+}
+const card: React.CSSProperties = {
+  background: '#fff', borderRadius: '16px', padding: '1.75rem',
+  border: '1px solid #ede9fe', boxShadow: '0 2px 16px rgba(124,58,237,0.08)',
+  transition: 'box-shadow 0.2s ease',
 }

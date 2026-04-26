@@ -20,16 +20,23 @@ const AssignTaskSchema = zod_1.z.object({
     deadline: zod_1.z.string().min(1),
 });
 // ── IMPORTANT: static routes BEFORE /:id ──────────────────────────────────────
-// GET /tasks/assignment-counts — Admin: task counts per member
+// GET /tasks/assignment-counts — Admin: task counts per member (includes both tasks and delegated_tasks)
 router.get('/assignment-counts', auth_1.authMiddleware, auth_1.requireAdmin, async (_req, res) => {
     try {
         const result = await db_1.default.query(`SELECT u.id, u.name,
-              COUNT(t.id) FILTER (WHERE t.status = 'assigned')  AS assigned,
-              COUNT(t.id) FILTER (WHERE t.status = 'completed') AS completed,
-              COUNT(t.id) FILTER (WHERE t.status = 'missed')    AS missed,
+              COUNT(t.id) FILTER (WHERE t.status = 'assigned')  +
+              COUNT(dt.id) FILTER (WHERE dt.status = 'assigned') AS assigned,
+              
+              COUNT(t.id) FILTER (WHERE t.status = 'completed') +
+              COUNT(dt.id) FILTER (WHERE dt.status IN ('completed', 'approved')) AS completed,
+              
+              COUNT(t.id) FILTER (WHERE t.status = 'missed')    +
+              COUNT(dt.id) FILTER (WHERE dt.status = 'missed') AS missed,
+              
               COUNT(t.id) FILTER (WHERE t.status = 'pending')   AS pending
        FROM users u
        LEFT JOIN tasks t ON t.assigned_to = u.id
+       LEFT JOIN delegated_tasks dt ON dt.assigned_to = u.id
        WHERE u.role IN ('member', 'ambassador')
        GROUP BY u.id, u.name
        ORDER BY u.name ASC`);
@@ -46,6 +53,7 @@ router.get('/', auth_1.authMiddleware, async (req, res) => {
     try {
         let result;
         if (user.role === 'admin') {
+            // Admins see all tasks
             result = await db_1.default.query(`SELECT t.id, t.description, t.status, t.deadline, t.submitted_at, t.completed_at,
                 t.screenshot_url, t.task_link,
                 t.submitted_by, su.name AS submitted_by_name,
@@ -56,17 +64,7 @@ router.get('/', auth_1.authMiddleware, async (req, res) => {
          ORDER BY t.submitted_at DESC`);
         }
         else if (user.role === 'ambassador') {
-            result = await db_1.default.query(`SELECT t.id, t.description, t.status, t.deadline, t.submitted_at, t.completed_at,
-                t.screenshot_url, t.task_link,
-                t.submitted_by, su.name AS submitted_by_name,
-                t.assigned_to, au.name AS assigned_to_name
-         FROM tasks t
-         INNER JOIN users su ON su.id = t.submitted_by
-         LEFT JOIN users au ON au.id = t.assigned_to
-         WHERE su.role = 'ambassador'
-         ORDER BY t.submitted_at DESC`);
-        }
-        else {
+            // Ambassadors only see their own submitted tasks
             result = await db_1.default.query(`SELECT t.id, t.description, t.status, t.deadline, t.submitted_at, t.completed_at,
                 t.screenshot_url, t.task_link,
                 t.submitted_by, su.name AS submitted_by_name,
@@ -74,7 +72,19 @@ router.get('/', auth_1.authMiddleware, async (req, res) => {
          FROM tasks t
          LEFT JOIN users su ON su.id = t.submitted_by
          LEFT JOIN users au ON au.id = t.assigned_to
-         WHERE t.submitted_by = $1 OR t.assigned_to = $1
+         WHERE t.submitted_by = $1
+         ORDER BY t.submitted_at DESC`, [user.sub]);
+        }
+        else {
+            // Regular members only see their own submitted tasks
+            result = await db_1.default.query(`SELECT t.id, t.description, t.status, t.deadline, t.submitted_at, t.completed_at,
+                t.screenshot_url, t.task_link,
+                t.submitted_by, su.name AS submitted_by_name,
+                t.assigned_to, au.name AS assigned_to_name
+         FROM tasks t
+         LEFT JOIN users su ON su.id = t.submitted_by
+         LEFT JOIN users au ON au.id = t.assigned_to
+         WHERE t.submitted_by = $1
          ORDER BY t.submitted_at DESC`, [user.sub]);
         }
         res.json(result.rows);
@@ -84,10 +94,16 @@ router.get('/', auth_1.authMiddleware, async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-// POST /tasks — Members only
+// POST /tasks — Restricted to delegated tasks only (members and ambassadors blocked)
 router.post('/', auth_1.authMiddleware, async (req, res) => {
-    if (req.user.role === 'admin') {
-        res.status(403).json({ error: 'Admins do not submit tasks.' });
+    // Block members and ambassadors - they can only work on delegated tasks
+    if (req.user.role === 'member' || req.user.role === 'ambassador') {
+        res.status(403).json({ error: 'Task submission is restricted to delegated tasks only.' });
+        return;
+    }
+    // Block ambassador admins from submitting tasks (they should delegate instead)
+    if (req.user.role === 'ambassador_admin') {
+        res.status(403).json({ error: 'Ambassador Admins do not submit tasks.' });
         return;
     }
     const parsed = CreateTaskSchema.safeParse(req.body);
@@ -99,7 +115,7 @@ router.post('/', auth_1.authMiddleware, async (req, res) => {
     const submittedBy = req.user.sub;
     const id = (0, crypto_1.randomUUID)();
     try {
-        // Check for duplicate task_link
+        // Check for duplicate task_link to prevent duplicate submissions
         if (task_link) {
             const existing = await db_1.default.query('SELECT id FROM tasks WHERE submitted_by = $1 AND task_link = $2', [submittedBy, task_link]);
             if (existing.rows.length > 0) {

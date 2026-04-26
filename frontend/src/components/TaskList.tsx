@@ -35,8 +35,10 @@ export default function TaskList({ refreshTrigger, onAssign }: Props) {
     try {
       const res = await api.get('/tasks')
       setTasks(res.data)
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to fetch tasks:', err)
+      // Show empty array instead of error for better UX
+      setTasks([])
     } finally {
       setLoading(false)
     }

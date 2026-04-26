@@ -31,4 +31,4 @@ async function check() {
   }
 }
 
-check();
+check(f);

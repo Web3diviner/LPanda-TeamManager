@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authMiddleware = authMiddleware;
 exports.requireAdmin = requireAdmin;
+exports.requireAmbassadorAdmin = requireAmbassadorAdmin;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const JWT_SECRET = process.env.JWT_SECRET ?? 'dev-secret-change-in-production';
 function authMiddleware(req, res, next) {
@@ -28,6 +29,13 @@ function authMiddleware(req, res, next) {
 function requireAdmin(req, res, next) {
     if (req.user?.role !== 'admin') {
         res.status(403).json({ error: 'Admin access required' });
+        return;
+    }
+    next();
+}
+function requireAmbassadorAdmin(req, res, next) {
+    if (req.user?.role !== 'ambassador_admin' && req.user?.role !== 'admin') {
+        res.status(403).json({ error: 'Ambassador admin access required' });
         return;
     }
     next();

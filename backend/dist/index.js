@@ -17,6 +17,7 @@ const feedback_1 = __importDefault(require("./routes/feedback"));
 const timers_1 = __importDefault(require("./routes/timers"));
 const schedule_1 = __importDefault(require("./routes/schedule"));
 const meetings_1 = __importDefault(require("./routes/meetings"));
+const ambassador_admin_1 = __importDefault(require("./routes/ambassador-admin"));
 const scheduler_1 = require("./scheduler");
 const app = (0, express_1.default)();
 const allowedOrigin = process.env.CORS_ORIGIN ?? 'http://localhost:5173';
@@ -37,6 +38,7 @@ app.use('/feedback', feedback_1.default);
 app.use('/timers', timers_1.default);
 app.use('/schedule', schedule_1.default);
 app.use('/meetings', meetings_1.default);
+app.use('/ambassador-admin', ambassador_admin_1.default);
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 exports.default = app;
 if (require.main === module) {

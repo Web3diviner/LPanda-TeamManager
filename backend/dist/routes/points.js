@@ -31,11 +31,12 @@ router.get('/me', auth_1.authMiddleware, async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-// GET /points/leaderboard — all users ordered by points DESC, name ASC
+// GET /points/leaderboard — all users ordered by points DESC, name ASC (excludes ambassadors)
 router.get('/leaderboard', auth_1.authMiddleware, async (_req, res) => {
     try {
-        const result = await db_1.default.query(`SELECT id, name, points
+        const result = await db_1.default.query(`SELECT id, name, points, avatar_url
        FROM users
+       WHERE role != 'ambassador'
        ORDER BY points DESC, name ASC`);
         res.json(result.rows);
     }
