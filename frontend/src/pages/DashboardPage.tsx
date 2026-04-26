@@ -58,6 +58,7 @@ export default function DashboardPage() {
   }, [user])
 
   const isAdmin = user?.role === 'admin'
+  const isAmbassadorAdmin = user?.role === 'ambassador_admin'
   const isMobile = useIsMobile()
 
   return (
@@ -89,8 +90,8 @@ export default function DashboardPage() {
       <div style={{ ...grid, gridTemplateColumns: isMobile ? '1fr' : '1fr 340px' }} className="dash-grid">
         {/* Main column */}
         <div style={mainCol}>
-          {/* For non-admins, show delegated tasks first (prominently) */}
-          {!isAdmin && (
+          {/* For non-admins and non-ambassador-admins, show delegated tasks first (prominently) */}
+          {!isAdmin && !isAmbassadorAdmin && (
             <div style={card}>
               <h3 style={cardTitle}>🎯 My Tasks</h3>
               <DelegatedTasksPanel refreshTrigger={refreshTrigger} />
@@ -115,10 +116,10 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* For admins, show delegated tasks after submitted tasks */}
-          {isAdmin && (
+          {/* For admins and ambassador admins, show delegated tasks */}
+          {(isAdmin || isAmbassadorAdmin) && (
             <div style={card}>
-              <h3 style={cardTitle}>🎯 All Delegated Tasks</h3>
+              <h3 style={cardTitle}>🎯 {isAdmin ? 'All Delegated Tasks' : 'Delegated Tasks'}</h3>
               <DelegatedTasksPanel refreshTrigger={refreshTrigger} />
             </div>
           )}

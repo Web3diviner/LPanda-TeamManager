@@ -66,6 +66,9 @@ router.get('/', authMiddleware, async (req: Request, res: Response): Promise<voi
          LEFT JOIN users au ON au.id = t.assigned_to
          ORDER BY t.submitted_at DESC`,
       );
+    } else if (user.role === 'ambassador_admin') {
+      // Ambassador admins see no tasks from tasks table (they use delegated_tasks)
+      result = { rows: [] };
     } else if (user.role === 'ambassador') {
       // Ambassadors only see their own submitted tasks
       result = await pool.query(

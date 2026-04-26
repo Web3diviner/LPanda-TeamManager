@@ -63,6 +63,10 @@ router.get('/', auth_1.authMiddleware, async (req, res) => {
          LEFT JOIN users au ON au.id = t.assigned_to
          ORDER BY t.submitted_at DESC`);
         }
+        else if (user.role === 'ambassador_admin') {
+            // Ambassador admins see no tasks from tasks table (they use delegated_tasks)
+            result = { rows: [] };
+        }
         else if (user.role === 'ambassador') {
             // Ambassadors only see their own submitted tasks
             result = await db_1.default.query(`SELECT t.id, t.description, t.status, t.deadline, t.submitted_at, t.completed_at,
